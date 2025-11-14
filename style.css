@@ -1,0 +1,62 @@
+body {
+    font-family: 'Stack Sans Notch', sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.barra-navegacion ul {
+    list-style-type: none;
+    font-size: 2rem;
+    display: flex;
+    justify-content: space-evenly;
+    margin: 0;
+    padding: 0;
+    margin-top: 10px;
+}
+
+
+#logo img{
+    height: 80px;
+}
+
+#logo{
+    display: flex;
+    align-items: center;
+}
+
+header{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #E43636;
+    position: relative;
+}
+#login .avatar{
+    width: 35px;
+    height: 35px;
+    background-image:url(./assets/persona-cuenta.svg);
+    background-size: cover;
+    padding-left: 20px;
+}
+
+#login{
+    position: absolute;
+    right: 0;
+}
+
+.btn-login {
+    font-family: 'Stack Sans Notch', sans-serif;
+    color: white;
+    background-color: transparent;
+    border: 2px solid white;
+    padding: 10px 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-right: 20px;
+    border-radius: 10px;
+}
+
+.btn-login:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
