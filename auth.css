@@ -5,15 +5,41 @@
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Stack Sans Text', sans-serif;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 20px;
+    position: relative;
 }
 
+/* BOTÓN VOLVER */
+.btn-volver {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid white;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 1000;
+    text-decoration: none;
+}
+
+.btn-volver:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+}
+
+/* CONTENEDOR PRINCIPAL */
 .container {
     width: 100%;
     max-width: 450px;
@@ -38,6 +64,7 @@ body {
     }
 }
 
+/* LOGO */
 .logo-container {
     text-align: center;
     margin-bottom: 30px;
@@ -46,14 +73,11 @@ body {
 .logo {
     max-width: 150px;
     height: auto;
+    filter: brightness(0) invert(1);
 }
 
+/* FORMULARIOS */
 .form-container {
-    display: none;
-}
-
-.form-container.active {
-    display: block;
     animation: fadeIn 0.3s ease-in;
 }
 
@@ -71,6 +95,7 @@ h2 {
     margin-bottom: 25px;
     text-align: center;
     font-size: 28px;
+    font-family: 'Stack Sans Notch', sans-serif;
 }
 
 .form-group {
@@ -96,6 +121,7 @@ select {
     font-size: 15px;
     transition: all 0.3s ease;
     background: #f9f9f9;
+    font-family: 'Stack Sans Text', sans-serif;
 }
 
 input:focus,
@@ -110,6 +136,14 @@ select {
     cursor: pointer;
 }
 
+small {
+    display: block;
+    margin-top: 5px;
+    color: #666;
+    font-size: 12px;
+}
+
+/* BOTONES */
 .btn {
     width: 100%;
     padding: 14px;
@@ -120,6 +154,7 @@ select {
     cursor: pointer;
     transition: all 0.3s ease;
     margin-top: 10px;
+    font-family: 'Stack Sans Notch', sans-serif;
 }
 
 .btn-primary {
@@ -132,17 +167,11 @@ select {
     box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
 }
 
-.btn-secondary {
-    background: #f44336;
-    color: white;
+.btn-primary:active {
+    transform: translateY(0);
 }
 
-.btn-secondary:hover {
-    background: #d32f2f;
-    transform: translateY(-2px);
-    box-shadow: 0 10px 25px rgba(244, 67, 54, 0.4);
-}
-
+/* ENLACES */
 .form-switch {
     text-align: center;
     margin-top: 20px;
@@ -160,44 +189,16 @@ select {
     text-decoration: underline;
 }
 
+/* MENSAJE DE VERIFICACIÓN */
 .verification-message {
     text-align: center;
     color: #666;
     margin-bottom: 25px;
     line-height: 1.6;
+    font-size: 14px;
 }
 
-.dashboard-info {
-    background: #f5f5f5;
-    padding: 20px;
-    border-radius: 10px;
-    margin: 25px 0;
-}
-
-.dashboard-info p {
-    margin: 10px 0;
-    color: #555;
-    font-size: 15px;
-}
-
-.status-badge {
-    display: inline-block;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-}
-
-.status-badge.verified {
-    background: #4caf50;
-    color: white;
-}
-
-.status-badge.pending {
-    background: #ff9800;
-    color: white;
-}
-
+/* NOTIFICACIONES */
 .notification {
     position: fixed;
     top: 20px;
@@ -210,6 +211,7 @@ select {
     transition: transform 0.3s ease;
     z-index: 1000;
     max-width: 300px;
+    font-family: 'Stack Sans Text', sans-serif;
 }
 
 .notification.show {
@@ -231,6 +233,7 @@ select {
     color: white;
 }
 
+/* RESPONSIVE */
 @media (max-width: 500px) {
     .auth-card {
         padding: 30px 20px;
@@ -244,5 +247,12 @@ select {
         right: 10px;
         left: 10px;
         max-width: none;
+    }
+
+    .btn-volver {
+        width: 45px;
+        height: 45px;
+        top: 15px;
+        left: 15px;
     }
 }
