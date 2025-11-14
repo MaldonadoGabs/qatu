@@ -6,6 +6,9 @@ const cardsVisible = 4; // Número de tarjetas visibles a la vez
 function moverCarrusel(direction) {
     const carrusel = document.querySelector('.carrusel');
     const cards = document.querySelectorAll('.producto-card');
+    
+    if (!cards.length) return;
+    
     const totalCards = cards.length;
     const cardWidth = cards[0].offsetWidth;
     const gap = 20; // Gap entre tarjetas

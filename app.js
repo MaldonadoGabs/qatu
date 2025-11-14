@@ -55,14 +55,19 @@ function loadFromMemory() {
 // Inicializar la página según el archivo HTML actual
 function initializePage() {
     const path = window.location.pathname;
+    const filename = path.split('/').pop() || 'index.html';
     
-    if (path.includes('login.html')) {
+    console.log('Inicializando página:', filename);
+    console.log('Path completo:', path);
+    
+    if (filename === 'login.html') {
         initLogin();
-    } else if (path.includes('registro.html')) {
+    } else if (filename === 'registro.html') {
         initRegistro();
-    } else if (path.includes('verificacion.html')) {
+    } else if (filename === 'verificacion.html') {
         initVerificacion();
-    } else if (path.includes('index.html') || path.endsWith('/')) {
+    } else {
+        // Si es index.html o la raíz, inicializar dashboard
         initDashboard();
     }
 }
@@ -70,14 +75,43 @@ function initializePage() {
 // === PÁGINA DE DASHBOARD ===
 function initDashboard() {
     const btnLogin = document.querySelector('.btn-login');
+    const btnIniciarSesion = document.getElementById('btn-iniciar-sesion');
     const userInfo = document.getElementById('user-info');
     
-    // Si hay usuario logueado, mostrar su información
+    console.log('Iniciando dashboard...');
+    console.log('Usuario actual:', currentUser);
+    
+    // Configurar botón de iniciar sesión
+    if (btnIniciarSesion) {
+        btnIniciarSesion.addEventListener('click', () => {
+            window.location.href = 'login.html';
+        });
+    }
+    
+    // Si hay usuario logueado y verificado, mostrar su información
     if (currentUser && currentUser.verified) {
-        if (btnLogin && userInfo) {
+        console.log('Usuario logueado detectado:', currentUser.name);
+        
+        if (btnLogin) {
             btnLogin.style.display = 'none';
+        }
+        
+        if (userInfo) {
             userInfo.style.display = 'flex';
-            document.getElementById('user-name-display').textContent = currentUser.name;
+            const userNameDisplay = document.getElementById('user-name-display');
+            if (userNameDisplay) {
+                userNameDisplay.textContent = currentUser.name;
+            }
+        }
+    } else {
+        console.log('No hay usuario logueado o no está verificado');
+        
+        if (btnLogin) {
+            btnLogin.style.display = 'block';
+        }
+        
+        if (userInfo) {
+            userInfo.style.display = 'none';
         }
     }
     

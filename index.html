@@ -18,7 +18,7 @@
         <img src="./assets/qatu.svg" alt="Logotipo Qatu" />
       </div>
       <div id="login">
-        <button class="btn-login" onclick="window.location.href='login.html'">
+        <button class="btn-login" id="btn-iniciar-sesion">
           Iniciar Sesión
         </button>
       </div>
@@ -76,42 +76,42 @@
         <div class="carrusel-wrapper">
           <div class="carrusel">
             <div class="producto-card">
-              <img src="https://via.placeholder.com/200" alt="Producto 1" />
+              <img src="#" alt="Producto 1" />
               <h3>Producto 1</h3>
               <p class="precio">$99.99</p>
             </div>
             <div class="producto-card">
-              <img src="https://via.placeholder.com/200" alt="Producto 2" />
+              <img src="#" alt="Producto 2" />
               <h3>Producto 2</h3>
               <p class="precio">$149.99</p>
             </div>
             <div class="producto-card">
-              <img src="https://via.placeholder.com/200" alt="Producto 3" />
+              <img src="#" alt="Producto 3" />
               <h3>Producto 3</h3>
               <p class="precio">$79.99</p>
             </div>
             <div class="producto-card">
-              <img src="https://via.placeholder.com/200" alt="Producto 4" />
+              <img src="#" alt="Producto 4" />
               <h3>Producto 4</h3>
               <p class="precio">$199.99</p>
             </div>
             <div class="producto-card">
-              <img src="https://via.placeholder.com/200" alt="Producto 5" />
+              <img src="#" alt="Producto 5" />
               <h3>Producto 5</h3>
               <p class="precio">$129.99</p>
             </div>
             <div class="producto-card">
-              <img src="https://via.placeholder.com/200" alt="Producto 6" />
+              <img src="#" alt="Producto 6" />
               <h3>Producto 6</h3>
               <p class="precio">$89.99</p>
             </div>
             <div class="producto-card">
-              <img src="https://via.placeholder.com/200" alt="Producto 7" />
+              <img src="#" alt="Producto 7" />
               <h3>Producto 7</h3>
               <p class="precio">$159.99</p>
             </div>
             <div class="producto-card">
-              <img src="https://via.placeholder.com/200" alt="Producto 8" />
+              <img src="#" alt="Producto 8" />
               <h3>Producto 8</h3>
               <p class="precio">$109.99</p>
             </div>
@@ -133,6 +133,10 @@
       </div>
     </section>
 
+    <div id="notification" class="notification"></div>
+
+    <!-- app.js debe cargarse PRIMERO para inicializar la sesión -->
+    <script src="app.js"></script>
     <script src="dashboard.js"></script>
   </body>
 </html>
