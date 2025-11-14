@@ -52,3 +52,6 @@ function moverCarrusel(direccion: number): void {
 
 // Hacer la función disponible globalmente para compatibilidad
 (window as any).moverCarrusel = moverCarrusel;
+
+// Exportar para convertir en módulo y evitar conflictos
+export {};
