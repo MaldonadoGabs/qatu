@@ -17,7 +17,7 @@ function generateVerificationCode() {
     return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-function showNotification(message, type) {
+function showNotification(message, type, duration = 3000) {
     const notification = document.getElementById('notification');
     if (notification) {
         notification.textContent = message;
@@ -25,19 +25,30 @@ function showNotification(message, type) {
         
         setTimeout(() => {
             notification.classList.remove('show');
-        }, 3000);
+        }, duration);
     }
 }
 
 function saveToMemory() {
-    // En producción, aquí se guardaría en una base de datos
+    // Guardar en localStorage para persistencia básica
+    localStorage.setItem('qatu_users', JSON.stringify(users));
+    localStorage.setItem('qatu_current_user', JSON.stringify(currentUser));
     console.log('Usuarios en memoria:', users);
     console.log('Usuario actual:', currentUser);
 }
 
 function loadFromMemory() {
-    // Simular carga desde almacenamiento
-    // En producción, cargar desde una base de datos
+    // Cargar desde localStorage
+    const savedUsers = localStorage.getItem('qatu_users');
+    const savedCurrentUser = localStorage.getItem('qatu_current_user');
+    
+    if (savedUsers) {
+        users = JSON.parse(savedUsers);
+    }
+    if (savedCurrentUser && savedCurrentUser !== 'null') {
+        currentUser = JSON.parse(savedCurrentUser);
+    }
+    
     console.log('Cargando datos desde memoria...');
 }
 
@@ -51,7 +62,39 @@ function initializePage() {
         initRegistro();
     } else if (path.includes('verificacion.html')) {
         initVerificacion();
+    } else if (path.includes('index.html') || path.endsWith('/')) {
+        initDashboard();
     }
+}
+
+// === PÁGINA DE DASHBOARD ===
+function initDashboard() {
+    const btnLogin = document.querySelector('.btn-login');
+    const userInfo = document.getElementById('user-info');
+    
+    // Si hay usuario logueado, mostrar su información
+    if (currentUser && currentUser.verified) {
+        if (btnLogin && userInfo) {
+            btnLogin.style.display = 'none';
+            userInfo.style.display = 'flex';
+            document.getElementById('user-name-display').textContent = currentUser.name;
+        }
+    }
+    
+    // Botón de cerrar sesión
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', handleLogout);
+    }
+}
+
+function handleLogout() {
+    currentUser = null;
+    saveToMemory();
+    showNotification('Sesión cerrada exitosamente', 'info');
+    setTimeout(() => {
+        window.location.reload();
+    }, 1000);
 }
 
 // === PÁGINA DE LOGIN ===
@@ -90,10 +133,10 @@ function handleLogin() {
         const newCode = generateVerificationCode();
         user.verificationCode = newCode;
         saveToMemory();
-        showNotification(`Tu cuenta no está verificada. Código: ${newCode}`, 'info');
+        showNotification(`Tu cuenta no está verificada. Código: ${newCode}`, 'info', 5000);
         setTimeout(() => {
             window.location.href = 'verificacion.html';
-        }, 2000);
+        }, 5000);
         return;
     }
     
@@ -166,12 +209,12 @@ function handleRegistro() {
     currentUser = newUser;
     saveToMemory();
     
-    showNotification(`Registro exitoso. Código de verificación: ${verificationCode}`, 'success');
+    showNotification(`Registro exitoso. Código de verificación: ${verificationCode}`, 'success', 5000);
     
     // Redirigir a verificación
     setTimeout(() => {
         window.location.href = 'verificacion.html';
-    }, 2000);
+    }, 5000);
 }
 
 // === PÁGINA DE VERIFICACIÓN ===
@@ -212,22 +255,33 @@ function handleVerificacion() {
     
     if (!currentUser) {
         showNotification('Error: Usuario no encontrado', 'error');
+        setTimeout(() => {
+            window.location.href = 'login.html';
+        }, 2000);
         return;
     }
     
     if (code === currentUser.verificationCode) {
+        // Encontrar el usuario en el array y actualizarlo
+        const userIndex = users.findIndex(u => u.id === currentUser.id);
+        if (userIndex !== -1) {
+            users[userIndex].verified = true;
+            delete users[userIndex].verificationCode;
+        }
+        
         currentUser.verified = true;
         delete currentUser.verificationCode;
         saveToMemory();
         
-        showNotification('¡Usuario verificado exitosamente!', 'success');
+        showNotification('¡Verificación exitosa! Redirigiendo al login...', 'success');
         
-        // Redirigir al dashboard
+        // Redirigir al login para que inicie sesión
         setTimeout(() => {
-            window.location.href = 'index.html';
-        }, 1500);
+            window.location.href = 'login.html';
+        }, 2000);
     } else {
         showNotification('Código de verificación incorrecto', 'error');
+        // NO redirigir, permitir que el usuario intente de nuevo
     }
 }
 
@@ -235,8 +289,15 @@ function handleResendCode() {
     if (currentUser) {
         const newCode = generateVerificationCode();
         currentUser.verificationCode = newCode;
+        
+        // Actualizar también en el array de usuarios
+        const userIndex = users.findIndex(u => u.id === currentUser.id);
+        if (userIndex !== -1) {
+            users[userIndex].verificationCode = newCode;
+        }
+        
         saveToMemory();
-        showNotification(`Nuevo código enviado: ${newCode}`, 'info');
+        showNotification(`Nuevo código enviado: ${newCode}`, 'info', 5000);
     } else {
         showNotification('Error: No hay usuario para reenviar código', 'error');
     }

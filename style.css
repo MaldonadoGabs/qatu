@@ -28,6 +28,41 @@ header {
     right: 20px;
 }
 
+#user-info {
+    position: absolute;
+    right: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.user-greeting {
+    color: white;
+    font-size: 1rem;
+    font-family: 'Stack Sans Text', sans-serif;
+}
+
+.user-greeting strong {
+    font-weight: 700;
+}
+
+.btn-logout {
+    font-family: 'Stack Sans Notch', sans-serif;
+    color: #E43636;
+    background-color: white;
+    border: 2px solid white;
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.btn-logout:hover {
+    background-color: #f5f5f5;
+    transform: scale(1.05);
+}
+
 .btn-login {
     font-family: 'Stack Sans Notch', sans-serif;
     color: white;
@@ -262,6 +297,41 @@ header {
 
 .carrusel-btn svg {
     transition: fill 0.3s ease;
+}
+
+/* NOTIFICACIONES */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 25px;
+    border-radius: 8px;
+    font-weight: 500;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    transform: translateX(400px);
+    transition: transform 0.3s ease;
+    z-index: 1000;
+    max-width: 300px;
+    font-family: 'Stack Sans Text', sans-serif;
+}
+
+.notification.show {
+    transform: translateX(0);
+}
+
+.notification.success {
+    background: #4caf50;
+    color: white;
+}
+
+.notification.error {
+    background: #f44336;
+    color: white;
+}
+
+.notification.info {
+    background: #2196f3;
+    color: white;
 }
 
 /* RESPONSIVE */
