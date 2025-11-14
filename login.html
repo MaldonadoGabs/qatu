@@ -16,6 +16,7 @@
       href="https://fonts.googleapis.com/css2?family=Stack+Sans+Notch:wght@200..700&family=Stack+Sans+Text:wght@200..700&display=swap"
       rel="stylesheet"
     />
+    <script type="module" src="login.js" defer></script>
   </head>
   <body>
     <a href="index.html" class="btn-volver">
@@ -29,7 +30,18 @@
     <main>
       <div class="login-container">
         <h1>Iniciar Sesión</h1>
-        <form class="login-form">
+        
+        <!-- Selector de tipo de usuario -->
+        <div class="tipo-usuario-selector">
+          <button type="button" id="btn-comprador" class="btn-tipo-usuario active">
+            Comprador
+          </button>
+          <button type="button" id="btn-vendedor" class="btn-tipo-usuario">
+            Vendedor
+          </button>
+        </div>
+
+        <form class="login-form" id="login-form">
           <div class="form-group">
             <label for="email">Correo Electrónico</label>
             <input type="email" id="email" name="email" required />

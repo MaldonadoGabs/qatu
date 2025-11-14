@@ -16,6 +16,7 @@
       href="https://fonts.googleapis.com/css2?family=Stack+Sans+Notch:wght@200..700&family=Stack+Sans+Text:wght@200..700&display=swap"
       rel="stylesheet"
     />
+    <script type="module" src="registro.js" defer></script>
   </head>
   <body>
     <a href="index.html" class="btn-volver">
@@ -29,7 +30,19 @@
     <main>
       <div class="registro-container">
         <h1>Registro</h1>
-        <form class="registro-form">
+        
+        <!-- Selector de tipo de usuario -->
+        <div class="tipo-usuario-selector">
+          <button type="button" id="btn-comprador" class="btn-tipo-usuario active">
+            Comprador
+          </button>
+          <button type="button" id="btn-vendedor" class="btn-tipo-usuario">
+            Vendedor
+          </button>
+        </div>
+
+        <!-- Formulario para Comprador -->
+        <form class="registro-form" id="form-comprador">
           <div class="form-row">
             <div class="form-group">
               <label for="nombre">Nombre</label>
@@ -59,6 +72,33 @@
           </div>
           <button type="submit" class="btn-submit">Registrarse</button>
         </form>
+
+        <!-- Formulario para Vendedor -->
+        <form class="registro-form" id="form-vendedor" style="display: none;">
+          <div class="form-group">
+            <label for="nombre-empresa">Nombre de la Empresa</label>
+            <input type="text" id="nombre-empresa" name="nombre-empresa" required />
+          </div>
+          <div class="form-group">
+            <label for="email-vendedor">Correo Electrónico</label>
+            <input type="email" id="email-vendedor" name="email-vendedor" required />
+          </div>
+          <div class="form-group">
+            <label for="password-vendedor">Contraseña</label>
+            <input type="password" id="password-vendedor" name="password-vendedor" required />
+          </div>
+          <div class="form-group">
+            <label for="confirm-password-vendedor">Confirmar Contraseña</label>
+            <input
+              type="password"
+              id="confirm-password-vendedor"
+              name="confirm-password-vendedor"
+              required
+            />
+          </div>
+          <button type="submit" class="btn-submit">Registrarse</button>
+        </form>
+
         <p class="login-link">
           ¿Ya tienes una cuenta? <a href="login.html">Inicia sesión</a>
         </p>
