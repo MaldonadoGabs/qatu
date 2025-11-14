@@ -14,6 +14,112 @@ body {
     margin-top: 10px;
 }
 
+.barra-navegacion ul li {
+    cursor: pointer;
+    position: relative;
+    padding: 10px 20px;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.barra-navegacion ul li.ofertas:hover {
+    background-color: #E43636;
+    color: #FFFFFF;
+    transform: scale(1.05);
+}
+
+.buscar {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    position: relative;
+}
+
+.buscar-texto {
+    white-space: nowrap;
+    transition: all 0.3s ease;
+}
+
+.buscar-input {
+    width: 0;
+    opacity: 0;
+    border: 2px solid #E43636;
+    border-radius: 10px;
+    padding: 8px 15px;
+    font-family: 'Stack Sans Text', sans-serif;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    margin-left: 0;
+}
+
+.buscar:hover .buscar-texto {
+    transform: translateX(-50px);
+}
+
+.buscar:hover .buscar-input {
+    width: 250px;
+    opacity: 1;
+    margin-left: 5px;
+}
+
+.buscar-input:focus {
+    outline: none;
+    border-color: #E43636;
+    box-shadow: 0 0 0 3px rgba(228, 54, 54, 0.1);
+}
+
+.dropdown {
+    position: relative;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #FFFFFF;
+    border: 2px solid #E43636;
+    border-radius: 10px;
+    padding: 15px 0;
+    min-width: 200px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(-50%) translateY(-10px);
+    transition: all 0.3s ease;
+    z-index: 1000;
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    list-style-type: none;
+}
+
+.dropdown:hover .dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+}
+
+.dropdown-menu li {
+    font-size: 1.2rem;
+    padding: 10px 25px;
+    transition: background-color 0.2s ease;
+}
+
+.dropdown-menu li:hover {
+    background-color: #f5f5f5;
+}
+
+.dropdown-menu li a {
+    color: #333;
+    text-decoration: none;
+    display: block;
+    transition: color 0.2s ease;
+}
+
+.dropdown-menu li:hover a {
+    color: #E43636;
+}
 
 #logo img{
     height: 80px;
@@ -58,5 +164,104 @@ header{
 
 .btn-login:hover {
     background-color: rgba(255, 255, 255, 0.1);
+}
+
+.productos-recientes {
+    max-width: 1200px;
+    margin: 50px auto;
+    padding: 0 20px;
+}
+
+.productos-recientes h2 {
+    font-size: 2rem;
+    color: #333;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.carrusel-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.carrusel-wrapper {
+    overflow: hidden;
+    flex: 1;
+}
+
+.carrusel {
+    display: flex;
+    gap: 20px;
+    transition: transform 0.5s ease;
+    margin-top: 10px;
+}
+
+.producto-card {
+    min-width: 270px;
+    flex-shrink: 0;
+    background: #FFFFFF;
+    border: 2px solid #f0f0f0;
+    border-radius: 15px;
+    padding: 20px;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.producto-card:hover {
+    border-color: #E43636;
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.producto-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+
+.producto-card h3 {
+    font-size: 1.2rem;
+    color: #333;
+    margin-bottom: 10px;
+    font-family: 'Stack Sans Text', sans-serif;
+}
+
+.producto-card .precio {
+    font-size: 1.5rem;
+    color: #E43636;
+    font-weight: 600;
+}
+
+.carrusel-btn {
+    background: #FFFFFF;
+    border: 2px solid #E43636;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+    z-index: 10;
+}
+
+.carrusel-btn:hover {
+    background: #E43636;
+    transform: scale(1.1);
+}
+
+.carrusel-btn:hover svg {
+    fill: #FFFFFF;
+}
+
+.carrusel-btn svg {
+    transition: fill 0.3s ease;
 }
 

@@ -11,6 +11,7 @@
       href="https://fonts.googleapis.com/css2?family=Stack+Sans+Notch:wght@200..700&family=Stack+Sans+Text:wght@200..700&display=swap"
       rel="stylesheet"
     />
+    <script type="module" src="dashboard.js"></script>
   </head>
   <body>
     <header>
@@ -26,11 +27,105 @@
     <nav>
       <div class="barra-navegacion">
         <ul>
-          <li>Categorías</li>
-          <li>Buscar</li>
-          <li>Ofertas</li>
+          <li class="dropdown">
+            Categorías
+            <ul class="dropdown-menu">
+              <li><a href="#">Electrónicos</a></li>
+              <li><a href="#">Hogar</a></li>
+              <li><a href="#">Ropa</a></li>
+              <li><a href="#">Belleza</a></li>
+              <li><a href="#">Deportes</a></li>
+              <li><a href="#">Libros</a></li>
+              <li><a href="#">Juguetes</a></li>
+              <li><a href="#">Alimentos</a></li>
+            </ul>
+          </li>
+          <li class="buscar">
+            <span class="buscar-texto">Buscar</span>
+            <input
+              type="text"
+              class="buscar-input"
+              placeholder="Buscar productos..."
+            />
+          </li>
+          <li class="ofertas">Ofertas</li>
         </ul>
       </div>
     </nav>
+    <section class="productos-recientes">
+      <h2>Productos Recientes</h2>
+      <div class="carrusel-container">
+        <button class="carrusel-btn prev" onclick="moverCarrusel(-1)">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            height="24px"
+            viewBox="0 -960 960 960"
+            width="24px"
+            fill="#E43636"
+          >
+            <path
+              d="m313-440 224 224-57 56-320-320 320-320 57 56-224 224h487v80H313Z"
+            />
+          </svg>
+        </button>
+        <div class="carrusel-wrapper">
+          <div class="carrusel">
+            <div class="producto-card">
+              <img src="https://via.placeholder.com/200" alt="Producto 1" />
+              <h3>Producto 1</h3>
+              <p class="precio">$99.99</p>
+            </div>
+            <div class="producto-card">
+              <img src="https://via.placeholder.com/200" alt="Producto 2" />
+              <h3>Producto 2</h3>
+              <p class="precio">$149.99</p>
+            </div>
+            <div class="producto-card">
+              <img src="https://via.placeholder.com/200" alt="Producto 3" />
+              <h3>Producto 3</h3>
+              <p class="precio">$79.99</p>
+            </div>
+            <div class="producto-card">
+              <img src="https://via.placeholder.com/200" alt="Producto 4" />
+              <h3>Producto 4</h3>
+              <p class="precio">$199.99</p>
+            </div>
+            <div class="producto-card">
+              <img src="https://via.placeholder.com/200" alt="Producto 5" />
+              <h3>Producto 5</h3>
+              <p class="precio">$129.99</p>
+            </div>
+            <div class="producto-card">
+              <img src="https://via.placeholder.com/200" alt="Producto 6" />
+              <h3>Producto 6</h3>
+              <p class="precio">$89.99</p>
+            </div>
+            <div class="producto-card">
+              <img src="https://via.placeholder.com/200" alt="Producto 7" />
+              <h3>Producto 7</h3>
+              <p class="precio">$159.99</p>
+            </div>
+            <div class="producto-card">
+              <img src="https://via.placeholder.com/200" alt="Producto 8" />
+              <h3>Producto 8</h3>
+              <p class="precio">$109.99</p>
+            </div>
+          </div>
+        </div>
+        <button class="carrusel-btn next" onclick="moverCarrusel(1)">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            height="24px"
+            viewBox="0 -960 960 960"
+            width="24px"
+            fill="#E43636"
+          >
+            <path
+              d="M647-440H160v-80h487L423-744l57-56 320 320-320 320-57-56 224-224Z"
+            />
+          </svg>
+        </button>
+      </div>
+    </section>
   </body>
 </html>
