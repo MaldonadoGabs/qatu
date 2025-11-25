@@ -7,7 +7,7 @@
     <link
       rel="icon"
       type="image/svg+xml"
-      href="../assets/isotipo-qatu-svg.svg"
+      href="/assets/isotipo-qatu-svg.svg"
     />
     <link rel="stylesheet" href="styles/style.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -16,12 +16,12 @@
       href="https://fonts.googleapis.com/css2?family=Stack+Sans+Notch:wght@200..700&family=Stack+Sans+Text:wght@200..700&display=swap"
       rel="stylesheet"
     />
-    <script type="module" src="../components/dashboard/js/dashboard.js" defer></script>
+    <script type="module" src="/components/dashboard/js/dashboard.js" defer></script>
   </head>
   <body>
     <header>
       <div id="logo">
-        <img src="../assets/logo-qatu-rojo.png" alt="Logotipo Qatu" />
+        <img src="/assets/logo-qatu-rojo.png" alt="Logotipo Qatu" />
       </div>
       <div id="login">
         <button class="btn-carrito" id="btn-carrito">
@@ -51,22 +51,79 @@
               <li><a href="#">Alimentos</a></li>
             </ul>
           </li>
+          <li class="buscar">
+            <span class="buscar-texto">Buscar</span>
+            <input
+              type="text"
+              class="buscar-input"
+              id="buscar-input"
+              placeholder="Buscar productos..."
+            />
+            <button class="btn-buscar" id="btn-buscar">
+              <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#FFFFFF">
+                <path d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z"/>
+              </svg>
+            </button>
+          </li>
+          <li class="ofertas">Ofertas</li>
         </ul>
       </div>
     </nav>
-    <main>
-      <section id="productos-recientes">
-        <h2>Productos Recientes</h2>
-        <button class="btn-prev">&larr;</button>
-        <button class="btn-next">&rarr;</button>
-      </section>
-      <section id="mi-carrito">
-        <h2>Mi Carrito</h2>
-        <button class="btn-remove">&times;</button>
-        <p>Tu carrito está vacío</p>
-        <p>Total: $0.00</p>
-        <button class="btn-finalizar">Finalizar Compra</button>
-      </section>
-    </main>
+    <section class="productos-recientes">
+      <h2>Productos Recientes</h2>
+      <div class="carrusel-container">
+        <button class="carrusel-btn prev" onclick="moverCarrusel(-1)">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            height="24px"
+            viewBox="0 -960 960 960"
+            width="24px"
+            fill="#E43636"
+          >
+            <path
+              d="m313-440 224 224-57 56-320-320 320-320 57 56-224 224h487v80H313Z"
+            />
+          </svg>
+        </button>
+        <div class="carrusel-wrapper">
+          <div class="carrusel" id="carrusel-productos">
+            <!-- Los productos se cargarán dinámicamente aquí -->
+          </div>
+        </div>
+        <button class="carrusel-btn next" onclick="moverCarrusel(1)">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            height="24px"
+            viewBox="0 -960 960 960"
+            width="24px"
+            fill="#E43636"
+          >
+            <path
+              d="M647-440H160v-80h487L423-744l57-56 320 320-320 320-57-56 224-224Z"
+            />
+          </svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- Modal del Carrito -->
+    <div id="modal-carrito" class="modal-carrito">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Mi Carrito</h2>
+          <button class="btn-cerrar-modal" id="btn-cerrar-modal">&times;</button>
+        </div>
+        <div class="modal-body" id="carrito-items">
+          <p class="carrito-vacio">Tu carrito está vacío</p>
+        </div>
+        <div class="modal-footer">
+          <div class="total-carrito">
+            <strong>Total: </strong>
+            <span id="total-carrito">$0.00</span>
+          </div>
+          <button class="btn-finalizar-compra" id="btn-finalizar-compra">Finalizar Compra</button>
+        </div>
+      </div>
+    </div>
   </body>
 </html>

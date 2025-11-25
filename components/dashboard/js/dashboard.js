@@ -299,7 +299,7 @@ function actualizarBotonLogin() {
             // No hay sesión activa
             btnLogin.textContent = 'Iniciar Sesión';
             btnLogin.onclick = () => {
-                window.location.href = 'login.html';
+                window.location.href = '/components/login/login.html';
             };
             // Ocultar botón de cerrar sesión
             if (btnCerrarSesion) {
@@ -312,7 +312,7 @@ function cerrarSesion() {
     if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
         localStorage.removeItem('usuarioActivo');
         localStorage.removeItem('carrito');
-        window.location.href = 'login.html';
+        window.location.href = '/components/login/login.html';
     }
 }
 // Exportar para convertir en módulo y evitar conflictos
