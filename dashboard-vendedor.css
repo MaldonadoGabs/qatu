@@ -10,13 +10,13 @@
 
 .nav-item:hover {
     background-color: #E43636;
-    color: #FFFFFF;
+    color: #FFF;
     transform: scale(1.05);
 }
 
 .nav-item.active {
     background-color: #E43636;
-    color: #FFFFFF;
+    color: #FFF;
 }
 
 .seccion-vendedor {
@@ -31,10 +31,10 @@
 }
 
 .contenedor-seccion {
-    background: #FFFFFF;
+    background: #FFF;
     border-radius: 20px;
     padding: 40px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgb(0 0 0 / 10%);
 }
 
 .contenedor-seccion h2 {
@@ -60,15 +60,6 @@
     margin: 0 auto;
 }
 
-.form-row {
-    display: flex;
-    gap: 20px;
-}
-
-.form-row .form-group {
-    flex: 1;
-}
-
 .form-group {
     display: flex;
     flex-direction: column;
@@ -79,6 +70,15 @@
     color: #333;
     font-size: 1rem;
     font-weight: 600;
+}
+
+.form-row {
+    display: flex;
+    gap: 20px;
+}
+
+.form-row .form-group {
+    flex: 1;
 }
 
 .required {
@@ -94,7 +94,7 @@
     border-radius: 10px;
     font-size: 1rem;
     font-family: 'Stack Sans Text', sans-serif;
-    background: #FFFFFF;
+    background: #FFF;
     color: #333;
     transition: border-color 0.3s;
 }
@@ -109,7 +109,7 @@
 .form-group textarea:focus {
     outline: none;
     border-color: #E43636;
-    box-shadow: 0 0 0 3px rgba(228, 54, 54, 0.1);
+    box-shadow: 0 0 0 3px rgb(228 54 54 / 10%);
 }
 
 .form-group textarea {
@@ -121,7 +121,7 @@
     margin-top: 10px;
     padding: 14px;
     background: #E43636;
-    color: #FFFFFF;
+    color: #FFF;
     border: none;
     border-radius: 10px;
     font-size: 1.1rem;
@@ -134,7 +134,7 @@
 .btn-submit-vendedor:hover {
     background: #C42E2E;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(228, 54, 54, 0.3);
+    box-shadow: 0 4px 12px rgb(228 54 54 / 30%);
 }
 
 /* Lista de productos */
@@ -150,7 +150,7 @@
 }
 
 .producto-vendedor-card {
-    background: #FFFFFF;
+    background: #FFF;
     border: 2px solid #E0E0E0;
     border-radius: 15px;
     padding: 20px;
@@ -159,7 +159,7 @@
 
 .producto-vendedor-card:hover {
     border-color: #E43636;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgb(0 0 0 / 10%);
 }
 
 .producto-vendedor-card img {
@@ -243,7 +243,7 @@
     padding: 30px;
     text-align: center;
     color: white;
-    box-shadow: 0 4px 12px rgba(228, 54, 54, 0.2);
+    box-shadow: 0 4px 12px rgb(228 54 54 / 20%);
     transition: transform 0.3s;
 }
 
@@ -254,7 +254,7 @@
 .stat-card h3 {
     font-size: 1.1rem;
     margin: 0 0 15px 0;
-    color: rgba(255, 255, 255, 0.9);
+    color: rgb(255 255 255 / 90%);
     font-weight: 500;
 }
 
