@@ -16,6 +16,11 @@
       href="https://fonts.googleapis.com/css2?family=Stack+Sans+Notch:wght@200..700&family=Stack+Sans+Text:wght@200..700&display=swap"
       rel="stylesheet"
     />
+    <script type="module">
+      import { mostrarAlerta, mostrarConfirmacion } from '/components/utils/alertas.js';
+      window.mostrarAlerta = mostrarAlerta;
+      window.mostrarConfirmacion = mostrarConfirmacion;
+    </script>
     <script type="module" src="/components/dashboard/js/dashboard.js" defer></script>
   </head>
   <body>

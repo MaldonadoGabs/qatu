@@ -1,5 +1,4 @@
 let tipoUsuarioActual = 'comprador';
-// Simular base de datos de usuarios
 const usuariosRegistrados = [];
 // Inicializar eventos cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', () => {
@@ -33,11 +32,14 @@ function seleccionarTipoUsuario(tipo) {
     if (btnComprador && btnVendedor) {
         if (tipo === 'comprador') {
             btnComprador.classList.add('active');
+            btnComprador.setAttribute('aria-pressed', 'true');
             btnVendedor.classList.remove('active');
-        }
-        else {
+            btnVendedor.setAttribute('aria-pressed', 'false');
+        } else {
             btnVendedor.classList.add('active');
+            btnVendedor.setAttribute('aria-pressed', 'true');
             btnComprador.classList.remove('active');
+            btnComprador.setAttribute('aria-pressed', 'false');
         }
     }
     // Mostrar/ocultar formularios
@@ -45,25 +47,30 @@ function seleccionarTipoUsuario(tipo) {
         if (tipo === 'comprador') {
             formComprador.style.display = 'flex';
             formVendedor.style.display = 'none';
-        }
-        else {
+        } else {
             formComprador.style.display = 'none';
             formVendedor.style.display = 'flex';
         }
     }
 }
 function manejarEnvioFormulario(e) {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _j;
     e.preventDefault();
     const form = e.target;
     if (tipoUsuarioActual === 'comprador') {
-        const nombre = (_a = form.querySelector('#nombre')) === null || _a === void 0 ? void 0 : _a.value;
-        const apellido = (_b = form.querySelector('#apellido')) === null || _b === void 0 ? void 0 : _b.value;
-        const email = (_c = form.querySelector('#email')) === null || _c === void 0 ? void 0 : _c.value;
-        const password = (_d = form.querySelector('#password')) === null || _d === void 0 ? void 0 : _d.value;
-        const confirmPassword = (_e = form.querySelector('#confirm-password')) === null || _e === void 0 ? void 0 : _e.value;
+        const nombre = form.querySelector('#nombre')?.value;
+        const apellido = form.querySelector('#apellido')?.value;
+        const email = form.querySelector('#email')?.value;
+        const password = form.querySelector('#password')?.value;
+        const confirmPassword = form.querySelector('#confirm-password')?.value;
         if (password !== confirmPassword) {
-            alert('Las contraseñas no coinciden');
+            mostrarAlerta('Sin coincidencia', 'Las contraseñas no coinciden', 'error');
+            return;
+        }
+        // Validar que el email no exista
+        const usuariosJSON = localStorage.getItem('usuariosRegistrados');
+        const usuariosExistentes = usuariosJSON ? JSON.parse(usuariosJSON) : [];
+        if (usuariosExistentes.some(u => u.email.toLowerCase() === email.toLowerCase())) {
+            mostrarAlerta('Error', 'Este correo electrónico ya está registrado', 'error');
             return;
         }
         const nuevoUsuario = {
@@ -74,14 +81,20 @@ function manejarEnvioFormulario(e) {
             password
         };
         registrarUsuario(nuevoUsuario);
-    }
-    else {
-        const nombreEmpresa = (_f = form.querySelector('#nombre-empresa')) === null || _f === void 0 ? void 0 : _f.value;
-        const email = (_g = form.querySelector('#email-vendedor')) === null || _g === void 0 ? void 0 : _g.value;
-        const password = (_h = form.querySelector('#password-vendedor')) === null || _h === void 0 ? void 0 : _h.value;
-        const confirmPassword = (_j = form.querySelector('#confirm-password-vendedor')) === null || _j === void 0 ? void 0 : _j.value;
+    } else {
+        const nombreEmpresa = form.querySelector('#nombre-empresa')?.value;
+        const email = form.querySelector('#email-vendedor')?.value;
+        const password = form.querySelector('#password-vendedor')?.value;
+        const confirmPassword = form.querySelector('#confirm-password-vendedor')?.value;
         if (password !== confirmPassword) {
-            alert('Las contraseñas no coinciden');
+            mostrarAlerta('Sin coincidencia', 'Las contraseñas no coinciden', 'error');
+            return;
+        }
+        // Validar que el email no exista
+        const usuariosJSON = localStorage.getItem('usuariosRegistrados');
+        const usuariosExistentes = usuariosJSON ? JSON.parse(usuariosJSON) : [];
+        if (usuariosExistentes.some(u => u.email.toLowerCase() === email.toLowerCase())) {
+            mostrarAlerta('Error', 'Este correo electrónico ya está registrado', 'error');
             return;
         }
         const nuevoUsuario = {
@@ -94,35 +107,51 @@ function manejarEnvioFormulario(e) {
     }
 }
 function registrarUsuario(usuario) {
-    usuariosRegistrados.push(usuario);
+    const usuariosJSON = localStorage.getItem('usuariosRegistrados');
+    const usuariosExistentes = usuariosJSON ? JSON.parse(usuariosJSON) : [];
+    usuariosExistentes.push(usuario);
     // Guardar en localStorage todos los usuarios
-    localStorage.setItem('usuariosRegistrados', JSON.stringify(usuariosRegistrados));
-    console.log('Usuario registrado exitosamente:', usuario);
-    console.log('Total de usuarios registrados:', usuariosRegistrados.length);
-    console.log('Lista completa de usuarios:', usuariosRegistrados);
-    // Guardar sesión en localStorage
-    localStorage.setItem('usuarioActivo', JSON.stringify(usuario));
-    alert(`¡Registro exitoso! Bienvenido ${usuario.nombreEmpresa || usuario.nombre}`);
+    localStorage.setItem('usuariosRegistrados', JSON.stringify(usuariosExistentes));
+    console.log('Usuario registrado exitosamente:', usuario.email);
+    // ✅ Guardar sesión SIN contraseña
+    const usuarioSesion = {
+        tipo: usuario.tipo,
+        email: usuario.email,
+        nombre: usuario.nombre,
+        nombreEmpresa: usuario.nombreEmpresa,
+        apellido: usuario.apellido
+    };
+    localStorage.setItem('usuarioActivo', JSON.stringify(usuarioSesion));
+    mostrarAlerta(
+        'Bienvenido',
+        `¡Registro exitoso! Bienvenido ${usuario.nombreEmpresa || usuario.nombre}`,
+        'éxito'
+    );
     // Redirigir según el tipo de usuario
-    if (usuario.tipo === 'vendedor') {
-        window.location.href = 'dashboard-vendedor.html';
-    }
-    else {
-        window.location.href = 'index.html';
-    }
+    setTimeout(() => {
+        if (usuario.tipo === 'vendedor') {
+            window.location.href = '/components/dashboard/dashboard-vendedor.html';
+        } else {
+            window.location.href = '/public/index.html';
+        }
+    }, 1500);
 }
 function simularRegistroVendedorQatu() {
+    const usuariosJSON = localStorage.getItem('usuariosRegistrados');
+    const usuariosExistentes = usuariosJSON ? JSON.parse(usuariosJSON) : [];
+
+    // Verificar si Qatu ya existe
+    const existeQatu = usuariosExistentes.some(u => u.email === 'qatu@qatu.com');
+    if (existeQatu) return;
     const vendedorQatu = {
         tipo: 'vendedor',
         nombreEmpresa: 'Qatu',
         email: 'qatu@qatu.com',
         password: 'qatu'
     };
-    usuariosRegistrados.push(vendedorQatu);
-    // Guardar en localStorage
-    localStorage.setItem('usuariosRegistrados', JSON.stringify(usuariosRegistrados));
-    console.log('Vendedor Qatu registrado automáticamente al cargar la página');
-    console.log('Usuario registrado:', vendedorQatu);
+    usuariosExistentes.push(vendedorQatu);
+    localStorage.setItem('usuariosRegistrados', JSON.stringify(usuariosExistentes));
+    console.log('Vendedor Qatu registrado automáticamente');
 }
 // Exportar para convertir en módulo
 export {};
