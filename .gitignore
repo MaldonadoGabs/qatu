@@ -2,3 +2,15 @@ echo ".vscode/" >> .gitignore
 echo "__pycache__/" >> .gitignore
 echo "*.pyc" >> .gitignore
 echo "venv/" >> .gitignore
+
+# Variables de entorno (datos sensibles)
+.env
+.env.local
+.env.production
+
+# Archivos de usuarios encriptados
+usuarios_encrypted
+
+# Logs de desarrollo
+*.log
+npm-debug.log*

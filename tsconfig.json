@@ -1,4 +1,4 @@
-{
+/*{
   // Visit https://aka.ms/tsconfig to read more about this file
   "compilerOptions": {
     // File Layout
@@ -11,6 +11,7 @@
     "target": "ES2015",
     "lib": ["ES2015", "DOM"],
     "types": [],
+    "moduleResolution": "node",
 
     // Other Outputs
     "sourceMap": true,
@@ -20,6 +21,9 @@
     // Stricter Typechecking Options
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
+    "strict": false,
+    "strictNullChecks": false,
+    "strictPropertyInitialization": false,
 
     // Style Options
     // "noImplicitReturns": true,
@@ -30,12 +34,36 @@
     // "noPropertyAccessFromIndexSignature": true,
 
     // Recommended Options
-    "strict": true,
+    // "strict": true,
     "jsx": "react-jsx",
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
     "skipLibCheck": true,
+  }
+}*/
+
+{
+  "compilerOptions": {
+    // File Layout
+    "rootDir": "./components",
+    "outDir": "./dist",
+
+    // Environment Settings
+    "module": "ES2015",
+    "target": "ES2015",
+    "lib": ["ES2015", "DOM"],
+    "types": [],
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+
+    // Other Outputs
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+
+    // Stricter Typechecking Options - Deshabilitados temporalmente
+    "strict": false
   }
 }

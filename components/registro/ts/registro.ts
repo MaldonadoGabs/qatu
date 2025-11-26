@@ -1,167 +1,205 @@
-// Tipos de usuario
-type TipoUsuario = 'comprador' | 'vendedor';
+import { notifications } from '../../shared/notifications.js';
 
-interface Usuario {
-    tipo: TipoUsuario;
+interface UsuarioPendiente {
     email: string;
     password: string;
-    nombreEmpresa?: string;
+    tipo: 'comprador' | 'vendedor';
     nombre?: string;
-    apellido?: string;
+    nombreEmpresa?: string;
+    ruc?: string;
+    telefono?: string;
+    direccion?: string;
+    verificado: boolean;
+    codigoVerificacion: string;
+    fechaExpiracionCodigo: string;
 }
 
-let tipoUsuarioActual: TipoUsuario = 'comprador';
+class RegistroPage {
+    private form: HTMLFormElement;
+    private tipoUsuario: 'comprador' | 'vendedor' = 'comprador';
+    private btnComprador: HTMLButtonElement;
+    private btnVendedor: HTMLButtonElement;
 
-// Simular base de datos de usuarios
-const usuariosRegistrados: Usuario[] = [];
+    constructor() {
+        this.form = document.getElementById('registro-form') as HTMLFormElement;
+        this.btnComprador = document.getElementById('btn-comprador') as HTMLButtonElement;
+        this.btnVendedor = document.getElementById('btn-vendedor') as HTMLButtonElement;
+        
+        this.init();
+    }
 
-// Inicializar eventos cuando el DOM esté listo
+    private init(): void {
+        this.configurarTipoUsuario();
+        this.configurarFormulario();
+    }
+
+    private configurarTipoUsuario(): void {
+        this.btnComprador.addEventListener('click', () => {
+            this.cambiarTipoUsuario('comprador');
+        });
+
+        this.btnVendedor.addEventListener('click', () => {
+            this.cambiarTipoUsuario('vendedor');
+        });
+    }
+
+    private cambiarTipoUsuario(tipo: 'comprador' | 'vendedor'): void {
+        this.tipoUsuario = tipo;
+
+        if (tipo === 'comprador') {
+            this.btnComprador.classList.add('active');
+            this.btnVendedor.classList.remove('active');
+        } else {
+            this.btnVendedor.classList.add('active');
+            this.btnComprador.classList.remove('active');
+        }
+
+        this.actualizarFormulario();
+    }
+
+    private actualizarFormulario(): void {
+        // Implementar lógica para mostrar/ocultar campos según tipo de usuario
+        // Por ahora solo cambiaremos el placeholder del nombre
+        const nombreInput = document.getElementById('nombre') as HTMLInputElement;
+        if (nombreInput) {
+            if (this.tipoUsuario === 'vendedor') {
+                nombreInput.placeholder = 'Nombre de la empresa';
+            } else {
+                nombreInput.placeholder = 'Nombre completo';
+            }
+        }
+    }
+
+    private configurarFormulario(): void {
+        this.form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.procesarRegistro();
+        });
+    }
+
+    private async procesarRegistro(): Promise<void> {
+        const formData = new FormData(this.form);
+        
+        const email = formData.get('email') as string;
+        const password = formData.get('password') as string;
+        const confirmPassword = formData.get('confirm-password') as string;
+        const nombre = formData.get('nombre') as string;
+
+        // Validaciones
+        if (!this.validarFormulario(email, password, confirmPassword, nombre)) {
+            return;
+        }
+
+        // Verificar si el email ya existe
+        if (this.emailYaRegistrado(email)) {
+            notifications.error('Este correo electrónico ya está registrado');
+            return;
+        }
+
+        // Generar código de verificación
+        const codigoVerificacion = this.generarCodigoVerificacion();
+        const fechaExpiracion = new Date();
+        fechaExpiracion.setMinutes(fechaExpiracion.getMinutes() + 15);
+
+        // Crear usuario pendiente
+        const usuarioPendiente: UsuarioPendiente = {
+            email: email,
+            password: password, // En producción, esto debería hashearse antes de guardar
+            tipo: this.tipoUsuario,
+            verificado: false,
+            codigoVerificacion: codigoVerificacion,
+            fechaExpiracionCodigo: fechaExpiracion.toISOString()
+        };
+
+        if (this.tipoUsuario === 'comprador') {
+            usuarioPendiente.nombre = nombre;
+        } else {
+            usuarioPendiente.nombreEmpresa = nombre;
+            usuarioPendiente.ruc = formData.get('ruc') as string;
+        }
+
+        // Guardar en localStorage (temporal)
+        this.guardarUsuarioPendiente(usuarioPendiente);
+
+        // Enviar email de verificación
+        try {
+            // Por ahora seguimos mostrando en consola para pruebas
+            console.log('Código de verificación:', codigoVerificacion);
+            console.log('Email destinatario:', email);
+            
+            // TODO: Implementar envío real de email cuando se configure el backend
+            // const emailService = new EmailService();
+            // await emailService.sendVerificationEmail({
+            //     email: email,
+            //     verificationCode: codigoVerificacion
+            // });
+            
+            notifications.success('Se ha enviado un código de verificación a tu correo electrónico');
+        } catch (error) {
+            console.error('Error al enviar email:', error);
+            notifications.error('No se pudo enviar el código de verificación. Intenta nuevamente.');
+            return;
+        }
+
+        // Redirigir a página de verificación después de 2 segundos
+        setTimeout(() => {
+            window.location.href = '/componentes/verificacion/verificacion.html';
+        }, 2000);
+    }
+
+    private validarFormulario(email: string, password: string, confirmPassword: string, nombre: string): boolean {
+        // Validar email
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            notifications.error('Por favor, ingresa un correo electrónico válido');
+            return false;
+        }
+
+        // Validar nombre
+        if (!nombre || nombre.trim().length < 3) {
+            notifications.error('El nombre debe tener al menos 3 caracteres');
+            return false;
+        }
+
+        // Validar contraseña
+        if (password.length < 8) {
+            notifications.error('La contraseña debe tener al menos 8 caracteres');
+            return false;
+        }
+
+        // Validar confirmación de contraseña
+        if (password !== confirmPassword) {
+            notifications.error('Las contraseñas no coinciden');
+            return false;
+        }
+
+        return true;
+    }
+
+    private emailYaRegistrado(email: string): boolean {
+        // Verificar en usuarios verificados
+        const usuarios = JSON.parse(localStorage.getItem('usuarios') || '[]');
+        const existeVerificado = usuarios.some((u: any) => u.email === email);
+
+        // Verificar en usuarios pendientes
+        const usuariosPendientes = JSON.parse(localStorage.getItem('usuariosPendientes') || '[]');
+        const existePendiente = usuariosPendientes.some((u: any) => u.email === email);
+
+        return existeVerificado || existePendiente;
+    }
+
+    private guardarUsuarioPendiente(usuario: UsuarioPendiente): void {
+        const usuariosPendientes = JSON.parse(localStorage.getItem('usuariosPendientes') || '[]');
+        usuariosPendientes.push(usuario);
+        localStorage.setItem('usuariosPendientes', JSON.stringify(usuariosPendientes));
+    }
+
+    private generarCodigoVerificacion(): string {
+        return Math.floor(100000 + Math.random() * 900000).toString();
+    }
+}
+
+// Inicializar cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', () => {
-    const btnComprador = document.getElementById('btn-comprador');
-    const btnVendedor = document.getElementById('btn-vendedor');
-    
-    if (btnComprador) {
-        btnComprador.addEventListener('click', () => seleccionarTipoUsuario('comprador'));
-    }
-    
-    if (btnVendedor) {
-        btnVendedor.addEventListener('click', () => seleccionarTipoUsuario('vendedor'));
-    }
-    
-    // Configurar ambos formularios
-    const formComprador = document.getElementById('form-comprador') as HTMLFormElement;
-    const formVendedor = document.getElementById('form-vendedor') as HTMLFormElement;
-    
-    if (formComprador) {
-        formComprador.addEventListener('submit', manejarEnvioFormulario);
-    }
-    
-    if (formVendedor) {
-        formVendedor.addEventListener('submit', manejarEnvioFormulario);
-    }
-    
-    // Simular registro del vendedor Qatu
-    simularRegistroVendedorQatu();
+    new RegistroPage();
 });
-
-function seleccionarTipoUsuario(tipo: TipoUsuario): void {
-    tipoUsuarioActual = tipo;
-    
-    const btnComprador = document.getElementById('btn-comprador');
-    const btnVendedor = document.getElementById('btn-vendedor');
-    const formComprador = document.getElementById('form-comprador');
-    const formVendedor = document.getElementById('form-vendedor');
-    
-    // Actualizar estado de los botones
-    if (btnComprador && btnVendedor) {
-        if (tipo === 'comprador') {
-            btnComprador.classList.add('active');
-            btnVendedor.classList.remove('active');
-        } else {
-            btnVendedor.classList.add('active');
-            btnComprador.classList.remove('active');
-        }
-    }
-    
-    // Mostrar/ocultar formularios
-    if (formComprador && formVendedor) {
-        if (tipo === 'comprador') {
-            formComprador.style.display = 'flex';
-            formVendedor.style.display = 'none';
-        } else {
-            formComprador.style.display = 'none';
-            formVendedor.style.display = 'flex';
-        }
-    }
-}
-
-function manejarEnvioFormulario(e: Event): void {
-    e.preventDefault();
-    
-    const form = e.target as HTMLFormElement;
-    
-    if (tipoUsuarioActual === 'comprador') {
-        const nombre = (form.querySelector('#nombre') as HTMLInputElement)?.value;
-        const apellido = (form.querySelector('#apellido') as HTMLInputElement)?.value;
-        const email = (form.querySelector('#email') as HTMLInputElement)?.value;
-        const password = (form.querySelector('#password') as HTMLInputElement)?.value;
-        const confirmPassword = (form.querySelector('#confirm-password') as HTMLInputElement)?.value;
-        
-        if (password !== confirmPassword) {
-            alert('Las contraseñas no coinciden');
-            return;
-        }
-        
-        const nuevoUsuario: Usuario = {
-            tipo: 'comprador',
-            nombre,
-            apellido,
-            email,
-            password
-        };
-        
-        registrarUsuario(nuevoUsuario);
-    } else {
-        const nombreEmpresa = (form.querySelector('#nombre-empresa') as HTMLInputElement)?.value;
-        const email = (form.querySelector('#email-vendedor') as HTMLInputElement)?.value;
-        const password = (form.querySelector('#password-vendedor') as HTMLInputElement)?.value;
-        const confirmPassword = (form.querySelector('#confirm-password-vendedor') as HTMLInputElement)?.value;
-        
-        if (password !== confirmPassword) {
-            alert('Las contraseñas no coinciden');
-            return;
-        }
-        
-        const nuevoUsuario: Usuario = {
-            tipo: 'vendedor',
-            nombreEmpresa,
-            email,
-            password
-        };
-        
-        registrarUsuario(nuevoUsuario);
-    }
-}
-
-function registrarUsuario(usuario: Usuario): void {
-    usuariosRegistrados.push(usuario);
-    
-    // Guardar en localStorage todos los usuarios
-    localStorage.setItem('usuariosRegistrados', JSON.stringify(usuariosRegistrados));
-    
-    console.log('Usuario registrado exitosamente:', usuario);
-    console.log('Total de usuarios registrados:', usuariosRegistrados.length);
-    console.log('Lista completa de usuarios:', usuariosRegistrados);
-    
-    // Guardar sesión en localStorage
-    localStorage.setItem('usuarioActivo', JSON.stringify(usuario));
-    
-    alert(`¡Registro exitoso! Bienvenido ${usuario.nombreEmpresa || usuario.nombre}`);
-    
-    // Redirigir según el tipo de usuario
-    if (usuario.tipo === 'vendedor') {
-        window.location.href = 'dashboard-vendedor.html';
-    } else {
-        window.location.href = 'index.html';
-    }
-}
-
-function simularRegistroVendedorQatu(): void {
-    const vendedorQatu: Usuario = {
-        tipo: 'vendedor',
-        nombreEmpresa: 'Qatu',
-        email: 'qatu@qatu.com',
-        password: 'qatu'
-    };
-    
-    usuariosRegistrados.push(vendedorQatu);
-    
-    // Guardar en localStorage
-    localStorage.setItem('usuariosRegistrados', JSON.stringify(usuariosRegistrados));
-    
-    console.log('Vendedor Qatu registrado automáticamente al cargar la página');
-    console.log('Usuario registrado:', vendedorQatu);
-}
-
-// Exportar para convertir en módulo
-export {};

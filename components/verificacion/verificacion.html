@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificación de Email - Qatu</title>
+    <link rel="icon" type="image/svg+xml" href="/assets/isotipo-qatu-svg.svg">
+    <link rel="stylesheet" href="./verificacion.css">
+    <link rel="stylesheet" href="../shared/notifications.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Stack+Sans+Notch:wght@200..700&family=Stack+Sans+Text:wght@200..700&display=swap" rel="stylesheet">
+    <script type="module" src="./ts/verificacion.ts" defer></script>
+</head>
+<body>
+    <div class="verificacion-container">
+        <div class="verificacion-card">
+            <div class="logo-container">
+                <img src="/assets/isotipo-qatu-svg.svg" alt="Qatu Logo">
+            </div>
+            <h1>Verifica tu Correo Electrónico</h1>
+            <p class="descripcion">Hemos enviado un código de verificación de 6 dígitos a tu correo electrónico.</p>
+            
+            <form id="form-verificacion">
+                <div class="codigo-inputs">
+                    <input type="text" maxlength="1" class="codigo-input" data-index="0" autocomplete="off">
+                    <input type="text" maxlength="1" class="codigo-input" data-index="1" autocomplete="off">
+                    <input type="text" maxlength="1" class="codigo-input" data-index="2" autocomplete="off">
+                    <input type="text" maxlength="1" class="codigo-input" data-index="3" autocomplete="off">
+                    <input type="text" maxlength="1" class="codigo-input" data-index="4" autocomplete="off">
+                    <input type="text" maxlength="1" class="codigo-input" data-index="5" autocomplete="off">
+                </div>
+                <button type="submit" class="btn-verificar">Verificar</button>
+            </form>
+            
+            <div class="reenviar-container">
+                <p>¿No recibiste el código?</p>
+                <button type="button" id="btn-reenviar" class="btn-reenviar">Reenviar código</button>
+            </div>
+            
+            <a href="/components/login/login.html" class="btn-volver-login">Volver al inicio de sesión</a>
+        </div>
+    </div>
+</body>
+</html>

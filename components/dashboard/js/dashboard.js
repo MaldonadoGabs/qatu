@@ -252,7 +252,7 @@ function verificarTipoUsuario() {
         const usuario = JSON.parse(usuarioActivo);
         // Si es vendedor, redirigir a su dashboard
         if (usuario.tipo === 'vendedor') {
-            window.location.href = 'dashboard-vendedor.html';
+            window.location.href = './components/dashboard-vendedor.html';
         }
     }
 }

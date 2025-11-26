@@ -1,0 +1,184 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Stack Sans Text', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.verificacion-container {
+    width: 100%;
+    max-width: 500px;
+}
+
+.verificacion-card {
+    background: white;
+    border-radius: 16px;
+    padding: 40px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    text-align: center;
+}
+
+.logo-container {
+    margin-bottom: 30px;
+}
+
+.logo-container img {
+    width: 80px;
+    height: 80px;
+}
+
+h1 {
+    font-family: 'Stack Sans Notch', sans-serif;
+    color: #333;
+    font-size: 28px;
+    margin-bottom: 10px;
+}
+
+.descripcion {
+    color: #666;
+    font-size: 16px;
+    margin-bottom: 30px;
+    line-height: 1.5;
+}
+
+#form-verificacion {
+    margin-bottom: 30px;
+}
+
+.codigo-inputs {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 30px;
+}
+
+.codigo-input {
+    width: 50px;
+    height: 60px;
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    font-family: 'Stack Sans Text', sans-serif;
+}
+
+.codigo-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    transform: scale(1.05);
+}
+
+.codigo-input.error {
+    border-color: #ef4444;
+    animation: shake 0.3s;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+.btn-verificar {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Stack Sans Text', sans-serif;
+}
+
+.btn-verificar:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+.btn-verificar:active {
+    transform: translateY(0);
+}
+
+.btn-verificar:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.reenviar-container {
+    margin-bottom: 20px;
+}
+
+.reenviar-container p {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.btn-reenviar {
+    background: transparent;
+    border: none;
+    color: #667eea;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 14px;
+    text-decoration: underline;
+    transition: color 0.3s ease;
+    font-family: 'Stack Sans Text', sans-serif;
+}
+
+.btn-reenviar:hover {
+    color: #764ba2;
+}
+
+.btn-reenviar:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-volver-login {
+    display: inline-block;
+    color: #666;
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.3s ease;
+}
+
+.btn-volver-login:hover {
+    color: #333;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .verificacion-card {
+        padding: 30px 20px;
+    }
+
+    h1 {
+        font-size: 24px;
+    }
+
+    .codigo-input {
+        width: 45px;
+        height: 55px;
+        font-size: 20px;
+    }
+
+    .codigo-inputs {
+        gap: 8px;
+    }
+}

@@ -105,10 +105,10 @@ function registrarUsuario(usuario) {
     alert(`¡Registro exitoso! Bienvenido ${usuario.nombreEmpresa || usuario.nombre}`);
     // Redirigir según el tipo de usuario
     if (usuario.tipo === 'vendedor') {
-        window.location.href = 'dashboard-vendedor.html';
+        window.location.href = '/components/dashboard/dashboard-vendedor.html';
     }
     else {
-        window.location.href = 'index.html';
+        window.location.href = '/public/index.html';
     }
 }
 function simularRegistroVendedorQatu() {
