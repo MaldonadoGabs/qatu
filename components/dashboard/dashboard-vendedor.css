@@ -9,14 +9,14 @@
 }
 
 .nav-item:hover {
-    background-color: #E43636;
-    color: #FFF;
+    background-color: #d32f2f;
+    color: #fff;
     transform: scale(1.05);
 }
 
 .nav-item.active {
-    background-color: #E43636;
-    color: #FFF;
+    background-color: #d32f2f;
+    color: #fff;
 }
 
 .seccion-vendedor {
@@ -31,7 +31,7 @@
 }
 
 .contenedor-seccion {
-    background: #FFF;
+    background: #fff;
     border-radius: 20px;
     padding: 40px;
     box-shadow: 0 4px 12px rgb(0 0 0 / 10%);
@@ -47,11 +47,9 @@
 .contenedor-seccion h3 {
     font-size: 1.5rem;
     color: #333;
-    margin-top: 40px;
-    margin-bottom: 20px;
+    margin: 40px 0 20px;
 }
 
-/* Formulario de publicar */
 .form-publicar {
     display: flex;
     flex-direction: column;
@@ -82,7 +80,7 @@
 }
 
 .required {
-    color: #E43636;
+    color: #d32f2f;
     font-weight: 700;
 }
 
@@ -90,11 +88,11 @@
 .form-group select,
 .form-group textarea {
     padding: 12px 16px;
-    border: 2px solid #E0E0E0;
+    border: 2px solid #e0e0e0;
     border-radius: 10px;
     font-size: 1rem;
     font-family: 'Stack Sans Text', sans-serif;
-    background: #FFF;
+    background: #fff;
     color: #333;
     transition: border-color 0.3s;
 }
@@ -108,8 +106,8 @@
 .form-group select:focus,
 .form-group textarea:focus {
     outline: none;
-    border-color: #E43636;
-    box-shadow: 0 0 0 3px rgb(228 54 54 / 10%);
+    border-color: #d32f2f;
+    box-shadow: 0 0 0 3px rgb(211 47 47 / 10%);
 }
 
 .form-group textarea {
@@ -120,8 +118,8 @@
 .btn-submit-vendedor {
     margin-top: 10px;
     padding: 14px;
-    background: #E43636;
-    color: #FFF;
+    background: #d32f2f;
+    color: #fff;
     border: none;
     border-radius: 10px;
     font-size: 1.1rem;
@@ -132,12 +130,11 @@
 }
 
 .btn-submit-vendedor:hover {
-    background: #C42E2E;
+    background: #c43030;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgb(228 54 54 / 30%);
+    box-shadow: 0 4px 12px rgb(211 47 47 / 30%);
 }
 
-/* Lista de productos */
 .productos-publicados {
     margin-top: 50px;
 }
@@ -150,15 +147,15 @@
 }
 
 .producto-vendedor-card {
-    background: #FFF;
-    border: 2px solid #E0E0E0;
+    background: #fff;
+    border: 2px solid #e0e0e0;
     border-radius: 15px;
     padding: 20px;
     transition: all 0.3s ease;
 }
 
 .producto-vendedor-card:hover {
-    border-color: #E43636;
+    border-color: #d32f2f;
     box-shadow: 0 4px 12px rgb(0 0 0 / 10%);
 }
 
@@ -178,7 +175,7 @@
 
 .producto-vendedor-card .precio {
     font-size: 1.3rem;
-    color: #E43636;
+    color: #d32f2f;
     font-weight: 600;
     margin-bottom: 10px;
 }
@@ -186,7 +183,7 @@
 .producto-vendedor-card .categoria {
     font-size: 0.9rem;
     color: #666;
-    background: #F5F5F5;
+    background: #f5f5f5;
     padding: 5px 10px;
     border-radius: 5px;
     display: inline-block;
@@ -212,7 +209,7 @@
 }
 
 .btn-editar {
-    background: #4CAF50;
+    background: #4caf50;
     color: white;
 }
 
@@ -229,7 +226,6 @@
     background: #da190b;
 }
 
-/* Estadísticas */
 .estadisticas-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -238,12 +234,12 @@
 }
 
 .stat-card {
-    background: linear-gradient(135deg, #E43636 0%, #C42E2E 100%);
+    background: linear-gradient(135deg, #d32f2f 0%, #c43030 100%);
     border-radius: 15px;
     padding: 30px;
     text-align: center;
     color: white;
-    box-shadow: 0 4px 12px rgb(228 54 54 / 20%);
+    box-shadow: 0 4px 12px rgb(211 47 47 / 20%);
     transition: transform 0.3s;
 }
 
@@ -253,7 +249,7 @@
 
 .stat-card h3 {
     font-size: 1.1rem;
-    margin: 0 0 15px 0;
+    margin: 0 0 15px;
     color: rgb(255 255 255 / 90%);
     font-weight: 500;
 }
@@ -264,14 +260,13 @@
     margin: 0;
 }
 
-/* Reseñas */
 .lista-resenas {
     margin-top: 30px;
 }
 
 .resena-card {
-    background: #F9F9F9;
-    border-left: 4px solid #E43636;
+    background: #f9f9f9;
+    border-left: 4px solid #d32f2f;
     border-radius: 10px;
     padding: 20px;
     margin-bottom: 20px;
@@ -295,7 +290,7 @@
 }
 
 .resena-calificacion {
-    color: #FFB400;
+    color: #ffb400;
     font-size: 1.2rem;
     margin-bottom: 10px;
 }
@@ -307,7 +302,7 @@
 
 .resena-producto {
     font-size: 0.9rem;
-    color: #E43636;
+    color: #d32f2f;
     margin-top: 10px;
     font-weight: 500;
 }

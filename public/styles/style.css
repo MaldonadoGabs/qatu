@@ -9,9 +9,8 @@ body {
     font-size: 2rem;
     display: flex;
     justify-content: space-evenly;
-    margin: 0;
+    margin: 10px 0 0;
     padding: 0;
-    margin-top: 10px;
 }
 
 .barra-navegacion ul li {
@@ -23,8 +22,8 @@ body {
 }
 
 .barra-navegacion ul li.ofertas:hover {
-    background-color: #E43636;
-    color: #FFF;
+    background-color: #d32f2f;
+    color: #fff;
     transform: scale(1.05);
 }
 
@@ -43,7 +42,7 @@ body {
 .buscar-input {
     width: 0;
     opacity: 0;
-    border: 2px solid #E43636;
+    border: 2px solid #d32f2f;
     border-radius: 10px 0 0 10px;
     padding: 8px 15px;
     font-family: 'Stack Sans Text', sans-serif;
@@ -55,8 +54,8 @@ body {
 .btn-buscar {
     width: 0;
     opacity: 0;
-    background: #E43636;
-    border: 2px solid #E43636;
+    background: #d32f2f;
+    border: 2px solid #d32f2f;
     border-left: none;
     border-radius: 0 10px 10px 0;
     padding: 8px 12px;
@@ -68,7 +67,7 @@ body {
 }
 
 .btn-buscar:hover {
-    background: #C42E2E;
+    background: #c43030;
 }
 
 .buscar:hover .buscar-texto {
@@ -90,8 +89,8 @@ body {
 
 .buscar-input:focus {
     outline: none;
-    border-color: #E43636;
-    box-shadow: 0 0 0 3px rgb(228 54 54 / 10%);
+    border-color: #d32f2f;
+    box-shadow: 0 0 0 3px rgb(211 47 47 / 10%);
 }
 
 .dropdown {
@@ -103,8 +102,8 @@ body {
     top: 100%;
     left: 50%;
     transform: translateX(-50%);
-    background: #FFF;
-    border: 2px solid #E43636;
+    background: #fff;
+    border: 2px solid #d32f2f;
     border-radius: 10px;
     padding: 15px 0;
     min-width: 200px;
@@ -144,34 +143,35 @@ body {
 }
 
 .dropdown-menu li:hover a {
-    color: #E43636;
+    color: #d32f2f;
 }
 
-#logo img{
+#logo img {
     height: 80px;
 }
 
-#logo{
+#logo {
     display: flex;
     align-items: center;
 }
 
-header{
+header {
     display: flex;
     justify-content: center;
     align-items: center;
-    background: #E43636;
+    background: #d32f2f;
     position: relative;
 }
-#login .avatar{
+
+#login .avatar {
     width: 35px;
     height: 35px;
-    background-image:url(./assets/persona-cuenta.svg);
+    background-image: url(./assets/persona-cuenta.svg);
     background-size: cover;
     padding-left: 20px;
 }
 
-#login{
+#login {
     position: absolute;
     right: 0;
     display: flex;
@@ -208,7 +208,7 @@ header{
 
 .carrito-count {
     background-color: white;
-    color: #E43636;
+    color: #d32f2f;
     border-radius: 50%;
     width: 24px;
     height: 24px;
@@ -288,7 +288,7 @@ header{
 .producto-card {
     min-width: 270px;
     flex-shrink: 0;
-    background: #FFF;
+    background: #fff;
     border: 2px solid #f0f0f0;
     border-radius: 15px;
     padding: 20px;
@@ -298,7 +298,7 @@ header{
 }
 
 .producto-card:hover {
-    border-color: #E43636;
+    border-color: #d32f2f;
     transform: translateY(-5px);
     box-shadow: 0 8px 16px rgb(0 0 0 / 10%);
 }
@@ -320,13 +320,13 @@ header{
 
 .producto-card .precio {
     font-size: 1.5rem;
-    color: #E43636;
+    color: #d32f2f;
     font-weight: 600;
 }
 
 .carrusel-btn {
-    background: #FFF;
-    border: 2px solid #E43636;
+    background: #fff;
+    border: 2px solid #d32f2f;
     border-radius: 50%;
     width: 50px;
     height: 50px;
@@ -340,19 +340,18 @@ header{
 }
 
 .carrusel-btn:hover {
-    background: #E43636;
+    background: #d32f2f;
     transform: scale(1.1);
 }
 
 .carrusel-btn:hover svg {
-    fill: #FFF;
+    fill: #fff;
 }
 
 .carrusel-btn svg {
     transition: fill 0.3s ease;
 }
 
-/* Modal del Carrito */
 .modal-carrito {
     display: none;
     position: fixed;
@@ -422,7 +421,7 @@ header{
 }
 
 .btn-cerrar-modal:hover {
-    color: #E43636;
+    color: #d32f2f;
 }
 
 .modal-body {
@@ -458,7 +457,7 @@ header{
 }
 
 .carrito-item-info h4 {
-    margin: 0 0 5px 0;
+    margin: 0 0 5px;
     color: #333;
     font-size: 1.1rem;
 }
@@ -470,7 +469,7 @@ header{
 }
 
 .carrito-item-precio {
-    color: #E43636;
+    color: #d32f2f;
     font-size: 1.3rem;
     font-weight: 600;
 }
@@ -514,13 +513,13 @@ header{
 }
 
 #total-carrito {
-    color: #E43636;
+    color: #d32f2f;
     font-weight: 700;
     font-size: 1.5rem;
 }
 
 .btn-finalizar-compra {
-    background: #E43636;
+    background: #d32f2f;
     color: white;
     border: none;
     padding: 12px 30px;
@@ -533,9 +532,9 @@ header{
 }
 
 .btn-finalizar-compra:hover {
-    background: #C42E2E;
+    background: #c43030;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgb(228 54 54 / 30%);
+    box-shadow: 0 4px 12px rgb(211 47 47 / 30%);
 }
 
 .btn-finalizar-compra:disabled {
@@ -548,7 +547,7 @@ header{
     margin-top: 10px;
     width: 100%;
     padding: 10px;
-    background: #E43636;
+    background: #d32f2f;
     color: white;
     border: none;
     border-radius: 8px;
@@ -559,7 +558,7 @@ header{
 }
 
 .btn-agregar-carrito:hover {
-    background: #C42E2E;
+    background: #c43030;
     transform: translateY(-2px);
 }
 
