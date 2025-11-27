@@ -6,7 +6,7 @@
 
 body {
     font-family: 'Stack Sans Notch', sans-serif;
-    background: #FFFFFF;
+    background: #FFF;
     display: flex;
     flex-direction: row;
     align-items: flex-start;
@@ -59,11 +59,11 @@ main {
     background: #E43636;
     border-radius: 20px;
     padding: 40px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 6px rgb(0 0 0 / 10%);
 }
 
 .registro-container h1 {
-    color: #FFFFFF;
+    color: #FFF;
     text-align: center;
     margin-bottom: 30px;
     font-size: 2rem;
@@ -80,9 +80,9 @@ main {
 .btn-tipo-usuario {
     flex: 1;
     padding: 12px 24px;
-    background: rgba(255, 255, 255, 0.2);
-    color: #FFFFFF;
-    border: 2px solid #FFFFFF;
+    background: rgb(255 255 255 / 20%);
+    color: #FFF;
+    border: 2px solid #FFF;
     border-radius: 10px;
     font-size: 1rem;
     font-weight: 600;
@@ -92,12 +92,12 @@ main {
 }
 
 .btn-tipo-usuario:hover {
-    background: rgba(255, 255, 255, 0.3);
+    background: rgb(255 255 255 / 30%);
     transform: translateY(-2px);
 }
 
 .btn-tipo-usuario.active {
-    background: #FFFFFF;
+    background: #FFF;
     color: #E43636;
 }
 
@@ -105,6 +105,35 @@ main {
     display: flex;
     flex-direction: column;
     gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group label {
+    color: #FFF;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.form-group input {
+    padding: 12px 16px;
+    border: 2px solid #FFF;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-family: 'Stack Sans Text', sans-serif;
+    background: #FFF;
+    color: #333;
+    transition: border-color 0.3s;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #FFF;
+    box-shadow: 0 0 0 3px rgb(255 255 255 / 20%);
 }
 
 .form-row {
@@ -120,39 +149,10 @@ main {
     flex: 1;
 }
 
-.form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.form-group label {
-    color: #FFFFFF;
-    font-size: 1rem;
-    font-weight: 500;
-}
-
-.form-group input {
-    padding: 12px 16px;
-    border: 2px solid #FFFFFF;
-    border-radius: 10px;
-    font-size: 1rem;
-    font-family: 'Stack Sans Text', sans-serif;
-    background: #FFFFFF;
-    color: #333;
-    transition: border-color 0.3s;
-}
-
-.form-group input:focus {
-    outline: none;
-    border-color: #FFFFFF;
-    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
-}
-
 .btn-submit {
     margin-top: 10px;
     padding: 14px;
-    background: #FFFFFF;
+    background: #FFF;
     color: #E43636;
     border: none;
     border-radius: 10px;
@@ -166,18 +166,18 @@ main {
 .btn-submit:hover {
     background: #f5f5f5;
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 8px rgb(0 0 0 / 15%);
 }
 
 .login-link {
     margin-top: 25px;
     text-align: center;
-    color: #FFFFFF;
+    color: #FFF;
     font-size: 0.95rem;
 }
 
 .login-link a {
-    color: #FFFFFF;
+    color: #FFF;
     text-decoration: underline;
     font-weight: 600;
     transition: opacity 0.3s;
