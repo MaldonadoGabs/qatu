@@ -102,6 +102,19 @@
     <section class="seccion-vendedor" id="seccion-estadisticas">
       <div class="contenedor-seccion">
         <h2>Estadísticas de Ventas</h2>
+        
+        <!-- Filtro de periodo -->
+        <div class="filtro-periodo">
+          <label for="select-periodo">Periodo:</label>
+          <select id="select-periodo" class="select-periodo">
+            <option value="semana">Última semana</option>
+            <option value="mes" selected>Último mes</option>
+            <option value="año">Último año</option>
+            <option value="todo">Todo el tiempo</option>
+          </select>
+        </div>
+
+        <!-- Resumen general -->
         <div class="estadisticas-grid">
           <div class="stat-card">
             <h3>Productos Publicados</h3>
@@ -118,6 +131,50 @@
           <div class="stat-card">
             <h3>Calificación Promedio</h3>
             <p class="stat-numero" id="stat-calificacion">⭐ 0.0</p>
+          </div>
+        </div>
+
+        <!-- Lista de productos con ventas -->
+        <div class="ventas-por-producto">
+          <h3>Ventas por Producto</h3>
+          <div id="lista-ventas-productos" class="lista-ventas-productos">
+            <p class="mensaje-vacio">No hay ventas en este periodo</p>
+          </div>
+        </div>
+
+        <!-- Detalle de producto seleccionado -->
+        <div id="detalle-producto-ventas" class="detalle-producto-ventas" style="display: none;">
+          <div class="detalle-header">
+            <h3 id="detalle-titulo">Detalle de Ventas</h3>
+            <button class="btn-cerrar-detalle" id="btn-cerrar-detalle">&times;</button>
+          </div>
+          <div class="detalle-content">
+            <div class="detalle-producto-info">
+              <img id="detalle-imagen" src="" alt="" />
+              <div class="detalle-info-text">
+                <h4 id="detalle-nombre"></h4>
+                <p id="detalle-precio"></p>
+                <span id="detalle-categoria"></span>
+              </div>
+            </div>
+            <div class="detalle-stats-grid">
+              <div class="detalle-stat">
+                <span class="detalle-label">Unidades vendidas</span>
+                <span class="detalle-valor" id="detalle-unidades">0</span>
+              </div>
+              <div class="detalle-stat">
+                <span class="detalle-label">Ingresos totales</span>
+                <span class="detalle-valor" id="detalle-ingresos">$0.00</span>
+              </div>
+              <div class="detalle-stat">
+                <span class="detalle-label">Número de ventas</span>
+                <span class="detalle-valor" id="detalle-num-ventas">0</span>
+              </div>
+              <div class="detalle-stat">
+                <span class="detalle-label">Última venta</span>
+                <span class="detalle-valor" id="detalle-ultima-venta">-</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
