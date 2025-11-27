@@ -1,4 +1,5 @@
 let tipoUsuarioLogin = 'comprador';
+
 // Inicializar eventos cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', () => {
     const btnComprador = document.getElementById('btn-comprador');
@@ -21,11 +22,14 @@ function seleccionarTipoUsuario(tipo) {
     if (btnComprador && btnVendedor) {
         if (tipo === 'comprador') {
             btnComprador.classList.add('active');
+            btnComprador.setAttribute('aria-pressed', 'true');
             btnVendedor.classList.remove('active');
-        }
-        else {
+            btnVendedor.setAttribute('aria-pressed', 'false');
+        } else {
             btnVendedor.classList.add('active');
+            btnVendedor.setAttribute('aria-pressed', 'true');
             btnComprador.classList.remove('active');
+            btnComprador.setAttribute('aria-pressed', 'false');
         }
     }
 }
@@ -36,7 +40,7 @@ function manejarLogin(e) {
     const email = emailInput.value.trim();
     const password = passwordInput.value;
     if (!email || !password) {
-        alert('Por favor, complete todos los campos.');
+        mostrarAlerta('Campo requerido', 'Por favor, complete todos los campos.', 'error');
         return;
     }
     // Obtener usuarios registrados
@@ -57,25 +61,39 @@ function manejarLogin(e) {
         usuarios.push(vendedorQatu);
     }
     // Buscar usuario
-    const usuarioEncontrado = usuarios.find(u => u.email.toLowerCase() === email.toLowerCase() &&
+    const usuarioEncontrado = usuarios.find(u => 
+        u.email.toLowerCase() === email.toLowerCase() &&
         u.password === password &&
-        u.tipo === tipoUsuarioLogin);
+        u.tipo === tipoUsuarioLogin
+    );
     if (usuarioEncontrado) {
+        // ✅ NO guardar password en sesión
+        const usuarioSesion = {
+            tipo: usuarioEncontrado.tipo,
+            email: usuarioEncontrado.email,
+            nombreEmpresa: usuarioEncontrado.nombreEmpresa,
+            nombre: usuarioEncontrado.nombre,
+            apellido: usuarioEncontrado.apellido
+        };
         // Login exitoso
-        localStorage.setItem('usuarioActivo', JSON.stringify(usuarioEncontrado));
-        console.log('Login exitoso:', usuarioEncontrado);
-        alert(`Bienvenido ${usuarioEncontrado.nombreEmpresa || usuarioEncontrado.nombre}!`);
+        localStorage.setItem('usuarioActivo', JSON.stringify(usuarioSesion));
+        console.log('Login exitoso para:', usuarioEncontrado.email);
+        mostrarAlerta('¡Bienvenido!', `Bienvenido ${usuarioEncontrado.nombreEmpresa || usuarioEncontrado.nombre}!`, 'éxito');
         // Redirigir según tipo de usuario
-        if (usuarioEncontrado.tipo === 'vendedor') {
-            window.location.href = 'dashboard-vendedor.html';
-        }
-        else {
-            window.location.href = 'index.html';
-        }
-    }
-    else {
+        setTimeout(() => {
+            if (usuarioEncontrado.tipo === 'vendedor') {
+                window.location.href = '/components/dashboard/dashboard-vendedor.html';
+            } else {
+                window.location.href = '/public/index.html';
+            }
+        }, 1500);
+    } else {
         // Credenciales incorrectas
-        alert(`Credenciales incorrectas o no existe una cuenta de ${tipoUsuarioLogin} con estos datos.\n\nPor favor, verifique:\n- El correo electrónico\n- La contraseña\n- Que esté seleccionando el tipo de cuenta correcto`);
+        mostrarAlerta(
+            'Error de autenticación',
+            `Credenciales incorrectas o no existe una cuenta de ${tipoUsuarioLogin} con estos datos.\n\nPor favor, verifique:\n- El correo electrónico\n- La contraseña\n- Que esté seleccionando el tipo de cuenta correcto`,
+            'error'
+        );
     }
 }
 // Exportar para convertir en módulo

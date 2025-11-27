@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -17,6 +17,11 @@
       href="https://fonts.googleapis.com/css2?family=Stack+Sans+Notch:wght@200..700&family=Stack+Sans+Text:wght@200..700&display=swap"
       rel="stylesheet"
     />
+    <script type="module">
+      import { mostrarAlerta, mostrarConfirmacion } from '/components/utils/alertas.js';
+      window.mostrarAlerta = mostrarAlerta;
+      window.mostrarConfirmacion = mostrarConfirmacion;
+    </script>
     <script type="module" src="./js/dashboard-vendedor.js" defer></script>
   </head>
   <body>
@@ -25,41 +30,41 @@
         <img src="/assets/logo-qatu-rojo.png" alt="Logotipo Qatu" />
       </div>
       <div id="login">
-        <button class="btn-login">
+        <button class="btn-login" aria-label="Ver información de mi cuenta">
           Mi Cuenta
         </button>
-        <button class="btn-cerrar-sesion" id="btn-cerrar-sesion">
+        <button class="btn-cerrar-sesion" id="btn-cerrar-sesion" aria-label="Cerrar sesión">
           Cerrar Sesión
         </button>
       </div>
     </header>
     <nav>
       <div class="barra-navegacion">
-        <ul>
-          <li class="nav-item" id="nav-publicar">Publicar</li>
-          <li class="nav-item" id="nav-estadisticas">Estadísticas</li>
-          <li class="nav-item" id="nav-resenas">Reseñas</li>
+        <ul role="tablist">
+          <li class="nav-item" id="nav-publicar" role="tab" aria-selected="true" aria-controls="seccion-publicar">Publicar</li>
+          <li class="nav-item" id="nav-estadisticas" role="tab" aria-selected="false" aria-controls="seccion-estadisticas">Estadísticas</li>
+          <li class="nav-item" id="nav-resenas" role="tab" aria-selected="false" aria-controls="seccion-resenas">Reseñas</li>
         </ul>
       </div>
     </nav>
     
     <!-- Sección Publicar -->
-    <section class="seccion-vendedor active" id="seccion-publicar">
+    <section class="seccion-vendedor active" id="seccion-publicar" role="tabpanel" aria-labelledby="nav-publicar">
       <div class="contenedor-seccion">
         <h2>Publicar Nuevo Producto</h2>
         <form class="form-publicar" id="form-producto">
           <div class="form-group">
-            <label for="nombre-producto">Nombre del Producto <span class="required">*</span></label>
-            <input type="text" id="nombre-producto" name="nombre-producto" required />
+            <label for="nombre-producto">Nombre del Producto <span class="required" aria-label="requerido">*</span></label>
+            <input type="text" id="nombre-producto" name="nombre-producto" required aria-required="true" />
           </div>
           <div class="form-row">
             <div class="form-group">
-              <label for="precio-producto">Precio <span class="required">*</span></label>
-              <input type="number" id="precio-producto" name="precio-producto" step="0.01" min="0.01" required />
+              <label for="precio-producto">Precio <span class="required" aria-label="requerido">*</span></label>
+              <input type="number" id="precio-producto" name="precio-producto" step="0.01" min="0.01" required aria-required="true" />
             </div>
             <div class="form-group">
-              <label for="categoria-producto">Categoría <span class="required">*</span></label>
-              <select id="categoria-producto" name="categoria-producto" required>
+              <label for="categoria-producto">Categoría <span class="required" aria-label="requerido">*</span></label>
+              <select id="categoria-producto" name="categoria-producto" required aria-required="true">
                 <option value="">Seleccionar...</option>
                 <option value="electronicos">Electrónicos</option>
                 <option value="hogar">Hogar</option>
@@ -73,17 +78,17 @@
             </div>
           </div>
           <div class="form-group">
-            <label for="descripcion-producto">Descripción <span class="required">*</span></label>
-            <textarea id="descripcion-producto" name="descripcion-producto" rows="4" required></textarea>
+            <label for="descripcion-producto">Descripción <span class="required" aria-label="requerido">*</span></label>
+            <textarea id="descripcion-producto" name="descripcion-producto" rows="4" required aria-required="true"></textarea>
           </div>
           <div class="form-group">
-            <label for="imagen-producto">Imagen del Producto <span class="required">*</span></label>
-            <input type="file" id="imagen-producto" name="imagen-producto" accept="image/jpeg,image/jpg,image/png,image/webp" required />
+            <label for="imagen-producto">Imagen del Producto <span class="required" aria-label="requerido">*</span></label>
+            <input type="file" id="imagen-producto" name="imagen-producto" accept="image/jpeg,image/jpg,image/png,image/webp" required aria-required="true" />
             <small style="color: #666; font-size: 0.9rem; margin-top: 5px; display: block;">
               Formatos permitidos: JPG, JPEG, PNG, WEBP. Tamaño máximo: 5MB
             </small>
             <div id="preview-imagen" style="margin-top: 10px; display: none;">
-              <img id="imagen-preview" src="" alt="Vista previa" style="max-width: 200px; max-height: 200px; border-radius: 10px; border: 2px solid #e0e0e0;">
+              <img id="imagen-preview" src="" alt="Vista previa de imagen" style="max-width: 200px; max-height: 200px; border-radius: 10px; border: 2px solid #e0e0e0;">
             </div>
           </div>
           <button type="submit" class="btn-submit-vendedor">Publicar Producto</button>
@@ -99,7 +104,7 @@
     </section>
     
     <!-- Sección Estadísticas -->
-    <section class="seccion-vendedor" id="seccion-estadisticas">
+    <section class="seccion-vendedor" id="seccion-estadisticas" role="tabpanel" aria-labelledby="nav-estadisticas">
       <div class="contenedor-seccion">
         <h2>Estadísticas de Ventas</h2>
         <div class="estadisticas-grid">
@@ -124,7 +129,7 @@
     </section>
     
     <!-- Sección Reseñas -->
-    <section class="seccion-vendedor" id="seccion-resenas">
+    <section class="seccion-vendedor" id="seccion-resenas" role="tabpanel" aria-labelledby="nav-resenas">
       <div class="contenedor-seccion">
         <h2>Reseñas de Clientes</h2>
         <div id="lista-resenas" class="lista-resenas">
