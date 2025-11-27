@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
-    "start": "node dist/dashboard.js"
+    "compile": "tsc",
+    "start": "echo 'Static site - no server needed'"
   },
   "repository": {
     "type": "git",

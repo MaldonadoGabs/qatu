@@ -13,7 +13,7 @@ class VerificacionPage {
         if (!usuarioPendiente) {
             notifications.error('No hay proceso de verificación en curso');
             setTimeout(() => {
-                window.location.href = '../registro/registro.html';
+                window.location.href = './registro/registro.html';
             }, 2000);
             return;
         }
@@ -160,10 +160,10 @@ class VerificacionPage {
         // Redirigir según el tipo de usuario
         setTimeout(() => {
             if (usuario.tipo === 'vendedor') {
-                window.location.href = '/components/dashboard/dashboard-vendedor.html';
+                window.location.href = './components/dashboard/dashboard-vendedor.html';
             }
             else {
-                window.location.href = '/public/index.html';
+                window.location.href = './public/index.html';
             }
         }, 2000);
     }
