@@ -1,4 +1,23 @@
-echo ".vscode/" >> .gitignore
-echo "__pycache__/" >> .gitignore
-echo "*.pyc" >> .gitignore
-echo "venv/" >> .gitignore
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Compiled files
+*.js
+*.d.ts
+*.js.map
+*.d.ts.map
+
+# OS
+.DS_Store
+
+# Environment
+.env
+
+# IDEs
+.vscode/
+__pycache__/
+*.pyc
+venv/
