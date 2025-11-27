@@ -140,9 +140,9 @@ function registrarUsuario(usuario: Usuario): void {
     
     // Redirigir según el tipo de usuario
     if (usuario.tipo === 'vendedor') {
-        window.location.href = 'dashboard-vendedor.html';
+        window.location.href = '/src/pages/dashboard-vendedor.html';
     } else {
-        window.location.href = 'index.html';
+        window.location.href = '/index.html';
     }
 }
 

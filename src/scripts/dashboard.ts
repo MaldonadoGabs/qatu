@@ -322,7 +322,7 @@ function verificarTipoUsuario(): void {
         
         // Si es vendedor, redirigir a su dashboard
         if (usuario.tipo === 'vendedor') {
-            window.location.href = 'dashboard-vendedor.html';
+            window.location.href = '/src/pages/dashboard-vendedor.html';
         }
     }
 }
@@ -374,7 +374,7 @@ function actualizarBotonLogin(): void {
             // No hay sesión activa
             btnLogin.textContent = 'Iniciar Sesión';
             btnLogin.onclick = () => {
-                window.location.href = 'login.html';
+                window.location.href = '/src/pages/login.html';
             };
             
             // Ocultar botón de cerrar sesión
@@ -389,7 +389,7 @@ function cerrarSesion(): void {
     if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
         localStorage.removeItem('usuarioActivo');
         localStorage.removeItem('carrito');
-        window.location.href = 'login.html';
+        window.location.href = '/src/pages/login.html';
     }
 }
 

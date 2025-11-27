@@ -1,0 +1,22 @@
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": ".",
+  "routes": [
+    {
+      "src": "/src/pages/(.*)",
+      "dest": "/src/pages/$1"
+    },
+    {
+      "src": "/public/(.*)",
+      "dest": "/public/$1"
+    },
+    {
+      "src": "/dist/(.*)",
+      "dest": "/dist/$1"
+    },
+    {
+      "src": "/src/styles/(.*)",
+      "dest": "/src/styles/$1"
+    }
+  ]
+}

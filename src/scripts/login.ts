@@ -99,9 +99,9 @@ function manejarLogin(e: Event): void {
         
         // Redirigir según tipo de usuario
         if (usuarioEncontrado.tipo === 'vendedor') {
-            window.location.href = 'dashboard-vendedor.html';
+            window.location.href = '/src/pages/dashboard-vendedor.html';
         } else {
-            window.location.href = 'index.html';
+            window.location.href = '/index.html';
         }
     } else {
         // Credenciales incorrectas

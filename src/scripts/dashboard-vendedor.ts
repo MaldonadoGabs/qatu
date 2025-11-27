@@ -64,7 +64,7 @@ function verificarSesion(): void {
     
     if (!usuarioActivo) {
         // No hay sesión, redirigir a login
-        window.location.href = 'login.html';
+        window.location.href = '/src/pages/login.html';
         return;
     }
     
@@ -73,7 +73,7 @@ function verificarSesion(): void {
     // Verificar que sea un vendedor
     if (usuario.tipo !== 'vendedor') {
         // Es comprador, redirigir a index.html
-        window.location.href = 'index.html';
+        window.location.href = '/index.html';
         return;
     }
     
@@ -589,7 +589,7 @@ function mostrarMenuCuenta(usuario: Usuario): void {
 function cerrarSesion(): void {
     if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
         localStorage.removeItem('usuarioActivo');
-        window.location.href = 'login.html';
+        window.location.href = '/src/pages/login.html';
     }
 }
 
