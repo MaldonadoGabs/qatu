@@ -8,7 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 // Importar servicios de Firebase
-import { obtenerProductos, buscarProductos } from '../../services/productosService.js';
+import { obtenerProductos, buscarProductos, obtenerProductosPorCategoria } from '../../services/productosService.js';
 // Carrusel de productos
 let posicionActual = 0;
 let carrusel;
@@ -25,6 +25,7 @@ document.addEventListener('DOMContentLoaded', () => __awaiter(void 0, void 0, vo
     cargarCarrito();
     configurarEventosCarrito();
     configurarBusqueda();
+    configurarFiltrosCategorias();
     actualizarBotonLogin();
 }));
 // 🔥 Cargar productos desde Firebase
@@ -41,7 +42,6 @@ function cargarProductosDesdeFirebase() {
             console.log(`✅ ${todosLosProductos.length} productos cargados`);
             if (todosLosProductos.length === 0) {
                 carruselContainer.innerHTML = '<p style="padding: 40px; text-align: center; color: #888;">No hay productos disponibles. Espera un momento...</p>';
-                // Reintentar después de 3 segundos (por si los productos se están cargando)
                 setTimeout(() => __awaiter(this, void 0, void 0, function* () {
                     console.log('🔄 Reintentando cargar productos...');
                     yield cargarProductosDesdeFirebase();
@@ -77,16 +77,40 @@ function mostrarProductos(productos) {
     `).join('');
     // Actualizar variables del carrusel
     carrusel = document.querySelector('.carrusel');
-    totalProductos = document.querySelectorAll('.producto-card').length;
-    maxPosicion = Math.max(0, totalProductos - productosPorPagina);
+    totalProductos = productos.length;
+    maxPosicion = Math.max(0, Math.ceil(totalProductos / productosPorPagina) - 1);
     posicionActual = 0;
     if (carrusel) {
         carrusel.style.transform = 'translateX(0px)';
     }
+    console.log(`📊 Carrusel: ${totalProductos} productos, ${maxPosicion + 1} páginas`);
 }
-// Configurar búsqueda
+// 🎯 Configurar filtros de categorías
+function configurarFiltrosCategorias() {
+    const categorias = document.querySelectorAll('.dropdown-menu a');
+    categorias.forEach(link => {
+        link.addEventListener('click', (e) => __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            e.preventDefault();
+            const categoriaTexto = (_a = e.target.textContent) === null || _a === void 0 ? void 0 : _a.trim().toLowerCase();
+            if (!categoriaTexto)
+                return;
+            console.log('🔍 Filtrando por categoría:', categoriaTexto);
+            try {
+                productosFiltrados = yield obtenerProductosPorCategoria(categoriaTexto);
+                console.log(`✅ ${productosFiltrados.length} productos encontrados`);
+                mostrarProductos(productosFiltrados);
+            }
+            catch (error) {
+                console.error('❌ Error al filtrar:', error);
+                mostrarAlerta('Error', 'No se pudieron cargar los productos', 'error');
+            }
+        }));
+    });
+}
+// 🔍 Configurar búsqueda
 function configurarBusqueda() {
-    const inputBusqueda = document.getElementById('input-busqueda');
+    const inputBusqueda = document.getElementById('buscar-input');
     const btnBuscar = document.getElementById('btn-buscar');
     if (!inputBusqueda || !btnBuscar)
         return;
@@ -114,7 +138,23 @@ function configurarBusqueda() {
             realizarBusqueda();
     });
 }
-// Agregar al carrito (función global)
+// ⬅️➡️ Mover carrusel (función global)
+window.moverCarrusel = function (direccion) {
+    if (!carrusel)
+        return;
+    posicionActual += direccion;
+    // Limitar posición
+    if (posicionActual < 0) {
+        posicionActual = 0;
+    }
+    else if (posicionActual > maxPosicion) {
+        posicionActual = maxPosicion;
+    }
+    const desplazamiento = -(posicionActual * (100 / productosPorPagina));
+    carrusel.style.transform = `translateX(${desplazamiento}%)`;
+    console.log(`🎯 Carrusel en página ${posicionActual + 1} de ${maxPosicion + 1}`);
+};
+// 🛒 Agregar al carrito (función global)
 window.agregarAlCarrito = function (idProducto) {
     const producto = todosLosProductos.find(p => p.id === idProducto);
     if (!producto) {
@@ -133,7 +173,7 @@ window.agregarAlCarrito = function (idProducto) {
     actualizarContadorCarrito();
     mostrarAlerta('Producto agregado', `${producto.nombre} se agregó al carrito`, 'exito');
 };
-// Cargar carrito desde localStorage (temporal, hasta migrar)
+// 📦 Funciones del carrito
 function cargarCarrito() {
     const carritoGuardado = localStorage.getItem('carrito');
     if (carritoGuardado) {
@@ -150,7 +190,6 @@ function actualizarContadorCarrito() {
         contador.textContent = carrito.length.toString();
     }
 }
-// Configurar eventos del carrito
 function configurarEventosCarrito() {
     const btnCarrito = document.getElementById('btn-carrito');
     if (btnCarrito) {
@@ -159,7 +198,7 @@ function configurarEventosCarrito() {
         });
     }
 }
-// Verificar tipo de usuario
+// 👤 Verificar tipo de usuario
 function verificarTipoUsuario() {
     const usuarioActivo = localStorage.getItem('usuarioActivo');
     if (usuarioActivo) {
@@ -169,7 +208,7 @@ function verificarTipoUsuario() {
         }
     }
 }
-// Actualizar botón de login
+// 🔐 Actualizar botón de login
 function actualizarBotonLogin() {
     const btnLogin = document.querySelector('.btn-login');
     const btnCerrarSesion = document.getElementById('btn-cerrar-sesion');

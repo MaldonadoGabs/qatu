@@ -3,7 +3,7 @@ declare function mostrarAlerta(titulo: string, mensaje: string, tipo: 'exito' | 
 declare function mostrarConfirmacion(titulo: string, mensaje: string, onAceptar: () => void, onCancelar?: () => void): void;
 
 // Importar servicios de Firebase
-import { obtenerProductos, buscarProductos, type Producto } from '../../services/productosService.js';
+import { obtenerProductos, buscarProductos, obtenerProductosPorCategoria, type Producto } from '../../services/productosService.js';
 
 // Carrusel de productos
 let posicionActual: number = 0;
@@ -32,6 +32,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     cargarCarrito();
     configurarEventosCarrito();
     configurarBusqueda();
+    configurarFiltrosCategorias();
     actualizarBotonLogin();
 });
 
@@ -53,7 +54,6 @@ async function cargarProductosDesdeFirebase(): Promise<void> {
         if (todosLosProductos.length === 0) {
             carruselContainer.innerHTML = '<p style="padding: 40px; text-align: center; color: #888;">No hay productos disponibles. Espera un momento...</p>';
             
-            // Reintentar después de 3 segundos (por si los productos se están cargando)
             setTimeout(async () => {
                 console.log('🔄 Reintentando cargar productos...');
                 await cargarProductosDesdeFirebase();
@@ -92,18 +92,45 @@ function mostrarProductos(productos: Producto[]): void {
     
     // Actualizar variables del carrusel
     carrusel = document.querySelector('.carrusel');
-    totalProductos = document.querySelectorAll('.producto-card').length;
-    maxPosicion = Math.max(0, totalProductos - productosPorPagina);
+    totalProductos = productos.length;
+    maxPosicion = Math.max(0, Math.ceil(totalProductos / productosPorPagina) - 1);
     posicionActual = 0;
     
     if (carrusel) {
         carrusel.style.transform = 'translateX(0px)';
     }
+    
+    console.log(`📊 Carrusel: ${totalProductos} productos, ${maxPosicion + 1} páginas`);
 }
 
-// Configurar búsqueda
+// 🎯 Configurar filtros de categorías
+function configurarFiltrosCategorias(): void {
+    const categorias = document.querySelectorAll('.dropdown-menu a');
+    
+    categorias.forEach(link => {
+        link.addEventListener('click', async (e) => {
+            e.preventDefault();
+            const categoriaTexto = (e.target as HTMLElement).textContent?.trim().toLowerCase();
+            
+            if (!categoriaTexto) return;
+            
+            console.log('🔍 Filtrando por categoría:', categoriaTexto);
+            
+            try {
+                productosFiltrados = await obtenerProductosPorCategoria(categoriaTexto as any);
+                console.log(`✅ ${productosFiltrados.length} productos encontrados`);
+                mostrarProductos(productosFiltrados);
+            } catch (error) {
+                console.error('❌ Error al filtrar:', error);
+                mostrarAlerta('Error', 'No se pudieron cargar los productos', 'error');
+            }
+        });
+    });
+}
+
+// 🔍 Configurar búsqueda
 function configurarBusqueda(): void {
-    const inputBusqueda = document.getElementById('input-busqueda') as HTMLInputElement;
+    const inputBusqueda = document.getElementById('buscar-input') as HTMLInputElement;
     const btnBuscar = document.getElementById('btn-buscar') as HTMLButtonElement;
     
     if (!inputBusqueda || !btnBuscar) return;
@@ -134,7 +161,26 @@ function configurarBusqueda(): void {
     });
 }
 
-// Agregar al carrito (función global)
+// ⬅️➡️ Mover carrusel (función global)
+(window as any).moverCarrusel = function(direccion: number): void {
+    if (!carrusel) return;
+    
+    posicionActual += direccion;
+    
+    // Limitar posición
+    if (posicionActual < 0) {
+        posicionActual = 0;
+    } else if (posicionActual > maxPosicion) {
+        posicionActual = maxPosicion;
+    }
+    
+    const desplazamiento = -(posicionActual * (100 / productosPorPagina));
+    carrusel.style.transform = `translateX(${desplazamiento}%)`;
+    
+    console.log(`🎯 Carrusel en página ${posicionActual + 1} de ${maxPosicion + 1}`);
+};
+
+// 🛒 Agregar al carrito (función global)
 (window as any).agregarAlCarrito = function(idProducto: string): void {
     const producto = todosLosProductos.find(p => p.id === idProducto);
     
@@ -162,7 +208,7 @@ function configurarBusqueda(): void {
     );
 };
 
-// Cargar carrito desde localStorage (temporal, hasta migrar)
+// 📦 Funciones del carrito
 function cargarCarrito(): void {
     const carritoGuardado = localStorage.getItem('carrito');
     if (carritoGuardado) {
@@ -182,7 +228,6 @@ function actualizarContadorCarrito(): void {
     }
 }
 
-// Configurar eventos del carrito
 function configurarEventosCarrito(): void {
     const btnCarrito = document.getElementById('btn-carrito');
     if (btnCarrito) {
@@ -192,7 +237,7 @@ function configurarEventosCarrito(): void {
     }
 }
 
-// Verificar tipo de usuario
+// 👤 Verificar tipo de usuario
 function verificarTipoUsuario(): void {
     const usuarioActivo = localStorage.getItem('usuarioActivo');
     if (usuarioActivo) {
@@ -203,7 +248,7 @@ function verificarTipoUsuario(): void {
     }
 }
 
-// Actualizar botón de login
+// 🔐 Actualizar botón de login
 function actualizarBotonLogin(): void {
     const btnLogin = document.querySelector('.btn-login') as HTMLButtonElement;
     const btnCerrarSesion = document.getElementById('btn-cerrar-sesion') as HTMLButtonElement;
