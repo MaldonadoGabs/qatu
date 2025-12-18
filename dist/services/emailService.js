@@ -7,7 +7,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import emailjs from '@emailjs/browser';
 // Configuración de EmailJS - REEMPLAZA CON TUS CREDENCIALES
 const EMAILJS_CONFIG = {
     serviceId: 'service_yrsn71a', // ← Obtener de EmailJS dashboard

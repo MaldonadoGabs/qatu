@@ -1,3 +1,13 @@
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+import { enviarCodigoVerificacion } from '../../services/emailService.js';
 class VerificacionPage {
     constructor() {
         this.form = document.getElementById('form-verificacion');
@@ -105,23 +115,50 @@ class VerificacionPage {
         }, 2000);
     }
     reenviarCodigo() {
-        const usuariosPendientes = JSON.parse(localStorage.getItem('usuariosPendientes') || '[]');
-        if (usuariosPendientes.length === 0) {
-            mostrarAlerta('Sin usuarios pendientes', 'No hay ninguna cuenta pendiente de verificación.', 'error');
-            return;
-        }
-        // Tomar el último usuario pendiente
-        const usuario = usuariosPendientes[usuariosPendientes.length - 1];
-        // Generar nuevo código
-        const nuevoCodigo = Math.floor(100000 + Math.random() * 900000).toString();
-        const fechaExpiracion = new Date();
-        fechaExpiracion.setMinutes(fechaExpiracion.getMinutes() + 15);
-        usuario.codigoVerificacion = nuevoCodigo;
-        usuario.fechaExpiracionCodigo = fechaExpiracion.toISOString();
-        localStorage.setItem('usuariosPendientes', JSON.stringify(usuariosPendientes));
-        console.log('Nuevo código de verificación:', nuevoCodigo);
-        mostrarAlerta('Código reenviado', `Nuevo código: ${nuevoCodigo}\n\n(Revisa la consola del navegador)`, 'exito');
-        this.limpiarInputs();
+        return __awaiter(this, void 0, void 0, function* () {
+            const usuariosPendientes = JSON.parse(localStorage.getItem('usuariosPendientes') || '[]');
+            if (usuariosPendientes.length === 0) {
+                mostrarAlerta('Sin usuarios pendientes', 'No hay ninguna cuenta pendiente de verificación.', 'error');
+                return;
+            }
+            // Tomar el último usuario pendiente
+            const usuario = usuariosPendientes[usuariosPendientes.length - 1];
+            // Generar nuevo código
+            const nuevoCodigo = Math.floor(100000 + Math.random() * 900000).toString();
+            const fechaExpiracion = new Date();
+            fechaExpiracion.setMinutes(fechaExpiracion.getMinutes() + 15);
+            usuario.codigoVerificacion = nuevoCodigo;
+            usuario.fechaExpiracionCodigo = fechaExpiracion.toISOString();
+            localStorage.setItem('usuariosPendientes', JSON.stringify(usuariosPendientes));
+            // Mostrar alerta de envío
+            mostrarAlerta('Reenviando código...', 'Por favor espera mientras enviamos el nuevo código a tu correo.', 'info');
+            try {
+                // Enviar email con EmailJS
+                const nombreCompleto = usuario.nombre
+                    ? `${usuario.nombre} ${usuario.apellido || ''}`.trim()
+                    : usuario.nombreEmpresa || 'Usuario';
+                const emailEnviado = yield enviarCodigoVerificacion({
+                    to_email: usuario.email,
+                    nombre: nombreCompleto,
+                    codigo: nuevoCodigo
+                });
+                if (emailEnviado) {
+                    console.log('✅ Nuevo código enviado exitosamente');
+                    console.log('📧 Email:', usuario.email);
+                    console.log('🔢 Código:', nuevoCodigo);
+                    mostrarAlerta('✅ Código reenviado', 'Se ha enviado un nuevo código de verificación a tu correo electrónico. Por favor revisa tu bandeja de entrada (y spam).', 'exito');
+                }
+                else {
+                    throw new Error('No se pudo enviar el email');
+                }
+            }
+            catch (error) {
+                console.error('❌ Error al reenviar código:', error);
+                console.log('🔢 Código temporal (usar en consola):', nuevoCodigo);
+                mostrarAlerta('Error al enviar email', `No se pudo enviar el código por correo electrónico.\n\nTu código temporal es:\n\n${nuevoCodigo}\n\n(También puedes verlo en la consola del navegador)`, 'error');
+            }
+            this.limpiarInputs();
+        });
     }
     limpiarInputs() {
         var _a;
@@ -135,5 +172,4 @@ class VerificacionPage {
 document.addEventListener('DOMContentLoaded', () => {
     new VerificacionPage();
 });
-export {};
 //# sourceMappingURL=verificacion.js.map

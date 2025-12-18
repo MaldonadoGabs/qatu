@@ -1,4 +1,5 @@
-import emailjs from '@emailjs/browser';
+//import emailjs from '@emailjs/browser';
+declare const emailjs: any;
 
 // Configuración de EmailJS - REEMPLAZA CON TUS CREDENCIALES
 const EMAILJS_CONFIG = {

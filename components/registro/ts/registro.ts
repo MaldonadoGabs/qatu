@@ -1,6 +1,9 @@
 // Declarar la función de alertas global
 declare function mostrarAlerta(titulo: string, mensaje: string, tipo: 'exito' | 'error' | 'info'): void;
 
+// Importar servicio de email
+import { enviarCodigoVerificacion } from '../../services/emailService.js';
+
 interface UsuarioPendiente {
     email: string;
     password: string;
@@ -89,12 +92,10 @@ class RegistroPage {
         const password = formData.get('password') as string;
         const confirmPassword = formData.get('confirm-password') as string;
 
-        // Validaciones
         if (!this.validarFormulario(email, password, confirmPassword, nombre)) {
             return;
         }
 
-        // Verificar si el email ya existe
         if (this.emailYaRegistrado(email)) {
             mostrarAlerta(
                 'Email ya registrado',
@@ -104,12 +105,10 @@ class RegistroPage {
             return;
         }
 
-        // Generar código de verificación
         const codigoVerificacion = this.generarCodigoVerificacion();
         const fechaExpiracion = new Date();
         fechaExpiracion.setMinutes(fechaExpiracion.getMinutes() + 15);
 
-        // Crear usuario pendiente
         const usuarioPendiente: UsuarioPendiente = {
             email: email,
             password: password,
@@ -121,7 +120,7 @@ class RegistroPage {
             fechaExpiracionCodigo: fechaExpiracion.toISOString()
         };
 
-        this.guardarYRedirigir(usuarioPendiente, codigoVerificacion, email);
+        await this.guardarYRedirigir(usuarioPendiente, codigoVerificacion, email, `${nombre} ${apellido}`);
     }
 
     private async procesarRegistroVendedor(): Promise<void> {
@@ -132,12 +131,10 @@ class RegistroPage {
         const password = formData.get('password-vendedor') as string;
         const confirmPassword = formData.get('confirm-password-vendedor') as string;
 
-        // Validaciones
         if (!this.validarFormulario(email, password, confirmPassword, nombreEmpresa)) {
             return;
         }
 
-        // Verificar si el email ya existe
         if (this.emailYaRegistrado(email)) {
             mostrarAlerta(
                 'Email ya registrado',
@@ -147,12 +144,10 @@ class RegistroPage {
             return;
         }
 
-        // Generar código de verificación
         const codigoVerificacion = this.generarCodigoVerificacion();
         const fechaExpiracion = new Date();
         fechaExpiracion.setMinutes(fechaExpiracion.getMinutes() + 15);
 
-        // Crear usuario pendiente
         const usuarioPendiente: UsuarioPendiente = {
             email: email,
             password: password,
@@ -163,40 +158,60 @@ class RegistroPage {
             fechaExpiracionCodigo: fechaExpiracion.toISOString()
         };
 
-        this.guardarYRedirigir(usuarioPendiente, codigoVerificacion, email);
+        await this.guardarYRedirigir(usuarioPendiente, codigoVerificacion, email, nombreEmpresa);
     }
 
-    private guardarYRedirigir(usuario: UsuarioPendiente, codigo: string, email: string): void {
-        // Guardar en localStorage
+    private async guardarYRedirigir(usuario: UsuarioPendiente, codigo: string, email: string, nombre: string): Promise<void> {
+        // Guardar SIEMPRE primero
         this.guardarUsuarioPendiente(usuario);
 
+        // Mostrar mensaje de envío
+        mostrarAlerta(
+            'Enviando código...',
+            'Por favor espera mientras enviamos el código de verificación a tu correo.',
+            'info'
+        );
+
+        let emailEnviado = false;
+
         try {
-            console.log('Código de verificación:', codigo);
-            console.log('Email destinatario:', email);
-            
-            mostrarAlerta(
-                '¡Registro exitoso!',
-                'Se ha enviado un código de verificación a tu correo electrónico. Revisa tu bandeja de entrada.',
-                'exito'
-            );
-            
-            // Redirigir a página de verificación
-            setTimeout(() => {
-                window.location.href = '/components/verificacion/verificacion.html';
-            }, 2000);
+            // Intentar enviar email con EmailJS
+            emailEnviado = await enviarCodigoVerificacion({
+                to_email: email,
+                nombre: nombre,
+                codigo: codigo
+            });
+
+            if (emailEnviado) {
+                console.log('✅ Código enviado exitosamente al email:', email);
+                
+                mostrarAlerta(
+                    '¡Registro exitoso!',
+                    'Se ha enviado un código de verificación a tu correo electrónico. Por favor revisa tu bandeja de entrada (y spam).',
+                    'exito'
+                );
+            } else {
+                throw new Error('No se pudo enviar el email');
+            }
             
         } catch (error) {
-            console.error('Error al enviar email:', error);
+            console.error('❌ Error al enviar email:', error);
+            console.log('🔢 Código de verificación (usar en consola):', codigo);
+            
             mostrarAlerta(
-                'Error al enviar código',
-                'No se pudo enviar el código de verificación. Por favor, intenta nuevamente.',
+                'Código generado',
+                `No se pudo enviar el email, pero tu registro fue exitoso.\n\nTu código de verificación es:\n\n${codigo}\n\n(También puedes verlo en la consola del navegador)`,
                 'error'
             );
         }
+
+        // SIEMPRE redirigir después de 3 segundos, sin importar si el email se envió o no
+        setTimeout(() => {
+            window.location.href = '/components/verificacion/verificacion.html';
+        }, 3000);
     }
 
     private validarFormulario(email: string, password: string, confirmPassword: string, nombre: string): boolean {
-        // Validar email
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
             mostrarAlerta(
@@ -207,7 +222,6 @@ class RegistroPage {
             return false;
         }
 
-        // Validar nombre
         if (!nombre || nombre.trim().length < 3) {
             mostrarAlerta(
                 'Nombre muy corto',
@@ -217,7 +231,6 @@ class RegistroPage {
             return false;
         }
 
-        // Validar contraseña
         if (password.length < 8) {
             mostrarAlerta(
                 'Contraseña débil',
@@ -227,7 +240,6 @@ class RegistroPage {
             return false;
         }
 
-        // Validar confirmación de contraseña
         if (password !== confirmPassword) {
             mostrarAlerta(
                 'Contraseñas no coinciden',
@@ -241,11 +253,9 @@ class RegistroPage {
     }
 
     private emailYaRegistrado(email: string): boolean {
-        // Verificar en usuarios verificados
         const usuarios = JSON.parse(localStorage.getItem('usuarios') || '[]');
         const existeVerificado = usuarios.some((u: any) => u.email === email);
 
-        // Verificar en usuarios pendientes
         const usuariosPendientes = JSON.parse(localStorage.getItem('usuariosPendientes') || '[]');
         const existePendiente = usuariosPendientes.some((u: any) => u.email === email);
 
@@ -263,7 +273,6 @@ class RegistroPage {
     }
 }
 
-// Inicializar cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', () => {
     new RegistroPage();
 });
