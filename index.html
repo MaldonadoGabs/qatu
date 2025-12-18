@@ -21,6 +21,35 @@
       window.mostrarAlerta = mostrarAlerta;
       window.mostrarConfirmacion = mostrarConfirmacion;
     </script>
+
+    <!-- Firebase CDN (v9 compat para sintaxis v8) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+
+    <!-- Inicializar Firebase -->
+    <script>
+      const firebaseConfig = {
+        apiKey: "AIzaSyC5cIfYbtdC9LPyphS3QbMOFfY14cB4Fs0",
+        authDomain: "qatu-ad473.firebaseapp.com",
+        projectId: "qatu-ad473",
+        storageBucket: "qatu-ad473.firebasestorage.app",
+        messagingSenderId: "568203406220",
+        appId: "1:568203406220:web:ad0cba2eb554a6ef4984a9"
+      };
+      
+      firebase.initializeApp(firebaseConfig);
+      console.log('🔥 Firebase inicializado desde CDN');
+    </script>
+
+    <!-- Auto-inicializar productos en Firebase -->
+    <script type="module">
+      import { verificarYCargarProductosIniciales } from "/dist/scripts/cargarProductosIniciales.js";
+      verificarYCargarProductosIniciales();
+    </script>
+    
+    
     <script type="module" src="/dist/dashboard/ts/dashboard.js" defer></script>
   </head>
   <body>

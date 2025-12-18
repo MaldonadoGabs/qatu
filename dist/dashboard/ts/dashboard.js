@@ -1,3 +1,14 @@
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+// Importar servicios de Firebase
+import { obtenerProductos, buscarProductos } from '../../services/productosService.js';
 // Carrusel de productos
 let posicionActual = 0;
 let carrusel;
@@ -7,29 +18,43 @@ let maxPosicion;
 let carrito = [];
 let todosLosProductos = [];
 let productosFiltrados = [];
-// Inicializar el carrusel cuando el DOM esté listo
-document.addEventListener('DOMContentLoaded', () => {
+// Inicializar cuando el DOM esté listo
+document.addEventListener('DOMContentLoaded', () => __awaiter(void 0, void 0, void 0, function* () {
     verificarTipoUsuario();
-    cargarProductosVendedores();
+    yield cargarProductosDesdeFirebase();
     cargarCarrito();
     configurarEventosCarrito();
     configurarBusqueda();
     actualizarBotonLogin();
-});
-function cargarProductosVendedores() {
-    const productosVendedor = localStorage.getItem('productosVendedor');
-    const carruselContainer = document.getElementById('carrusel-productos');
-    if (!carruselContainer)
-        return;
-    if (!productosVendedor) {
-        carruselContainer.innerHTML = '<p style="padding: 40px; text-align: center; color: #888;">No hay productos disponibles</p>';
-        todosLosProductos = [];
-        productosFiltrados = [];
-        return;
-    }
-    todosLosProductos = JSON.parse(productosVendedor);
-    productosFiltrados = [...todosLosProductos];
-    mostrarProductos(productosFiltrados);
+}));
+// 🔥 Cargar productos desde Firebase
+function cargarProductosDesdeFirebase() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const carruselContainer = document.getElementById('carrusel-productos');
+        if (!carruselContainer)
+            return;
+        try {
+            carruselContainer.innerHTML = '<p style="padding: 40px; text-align: center; color: #666;">⏳ Cargando productos...</p>';
+            console.log('📦 Cargando productos desde Firebase...');
+            todosLosProductos = yield obtenerProductos();
+            productosFiltrados = [...todosLosProductos];
+            console.log(`✅ ${todosLosProductos.length} productos cargados`);
+            if (todosLosProductos.length === 0) {
+                carruselContainer.innerHTML = '<p style="padding: 40px; text-align: center; color: #888;">No hay productos disponibles. Espera un momento...</p>';
+                // Reintentar después de 3 segundos (por si los productos se están cargando)
+                setTimeout(() => __awaiter(this, void 0, void 0, function* () {
+                    console.log('🔄 Reintentando cargar productos...');
+                    yield cargarProductosDesdeFirebase();
+                }), 3000);
+                return;
+            }
+            mostrarProductos(productosFiltrados);
+        }
+        catch (error) {
+            console.error('❌ Error al cargar productos:', error);
+            carruselContainer.innerHTML = '<p style="padding: 40px; text-align: center; color: #E43636;">❌ Error al cargar productos. Por favor recarga la página.</p>';
+        }
+    });
 }
 function mostrarProductos(productos) {
     const carruselContainer = document.getElementById('carrusel-productos');
@@ -41,11 +66,11 @@ function mostrarProductos(productos) {
     }
     carruselContainer.innerHTML = productos.map((producto) => `
         <div class="producto-card">
-            <img src="${producto.imagen}" alt="${producto.nombre}" />
+            <img src="${producto.imagen}" alt="${producto.nombre}" onerror="this.src='/assets/placeholder-producto.png'" />
             <h3>${producto.nombre}</h3>
             <p class="precio">$${producto.precio.toFixed(2)}</p>
-            <p style="font-size: 0.9rem; color: #666; margin: 5px 0;">Vendedor: ${producto.vendedor}</p>
-            <button class="btn-agregar-carrito" onclick="agregarAlCarrito(${producto.id})">
+            <p style="font-size: 0.9rem; color: #666; margin: 5px 0;">Vendedor: ${producto.vendedorNombre}</p>
+            <button class="btn-agregar-carrito" onclick="window.agregarAlCarrito('${producto.id}')">
                 Agregar al Carrito
             </button>
         </div>
@@ -55,101 +80,45 @@ function mostrarProductos(productos) {
     totalProductos = document.querySelectorAll('.producto-card').length;
     maxPosicion = Math.max(0, totalProductos - productosPorPagina);
     posicionActual = 0;
-    // Resetear posición del carrusel
     if (carrusel) {
         carrusel.style.transform = 'translateX(0px)';
     }
 }
+// Configurar búsqueda
 function configurarBusqueda() {
-    const inputBusqueda = document.getElementById('buscar-input');
+    const inputBusqueda = document.getElementById('input-busqueda');
     const btnBuscar = document.getElementById('btn-buscar');
-    if (btnBuscar) {
-        btnBuscar.addEventListener('click', () => {
-            realizarBusqueda();
-        });
-    }
-    if (inputBusqueda) {
-        inputBusqueda.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                realizarBusqueda();
-            }
-        });
-    }
-}
-function realizarBusqueda() {
-    const inputBusqueda = document.getElementById('buscar-input');
-    if (!inputBusqueda)
+    if (!inputBusqueda || !btnBuscar)
         return;
-    const termino = inputBusqueda.value.trim();
-    if (termino === '') {
-        mostrarAlerta('Campo vacío', 'Por favor, ingrese al menos una palabra clave para realizar la búsqueda.', 'info');
-        return;
-    }
-    buscarProductos(termino);
-}
-function buscarProductos(termino) {
-    const terminoLower = termino.toLowerCase();
-    productosFiltrados = todosLosProductos.filter(producto => producto.nombre.toLowerCase().includes(terminoLower) ||
-        producto.descripcion.toLowerCase().includes(terminoLower));
-    mostrarProductos(productosFiltrados);
-    if (productosFiltrados.length === 0) {
-        const carruselContainer = document.getElementById('carrusel-productos');
-        if (carruselContainer) {
-            carruselContainer.innerHTML = `
-                <div style="padding: 60px; text-align: center; width: 100%;">
-                    <h3 style="color: #666; font-size: 1.5rem; margin-bottom: 10px;">No se encontraron productos</h3>
-                    <p style="color: #888; font-size: 1.1rem;">No hay productos que coincidan con "${termino}"</p>
-                    <button onclick="limpiarBusqueda()" style="margin-top: 20px; padding: 10px 20px; background: #E43636; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem;">
-                        Ver todos los productos
-                    </button>
-                </div>
-            `;
+    const realizarBusqueda = () => __awaiter(this, void 0, void 0, function* () {
+        const termino = inputBusqueda.value.trim();
+        if (!termino) {
+            productosFiltrados = [...todosLosProductos];
+            mostrarProductos(productosFiltrados);
+            return;
         }
-        console.log(`No se encontraron resultados para: "${termino}"`);
-    }
-    else {
-        console.log(`Se encontraron ${productosFiltrados.length} resultados para: "${termino}"`);
-    }
+        try {
+            console.log('🔍 Buscando:', termino);
+            productosFiltrados = yield buscarProductos(termino);
+            console.log(`✅ ${productosFiltrados.length} productos encontrados`);
+            mostrarProductos(productosFiltrados);
+        }
+        catch (error) {
+            console.error('❌ Error al buscar:', error);
+            mostrarAlerta('Error', 'No se pudo realizar la búsqueda', 'error');
+        }
+    });
+    btnBuscar.addEventListener('click', realizarBusqueda);
+    inputBusqueda.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter')
+            realizarBusqueda();
+    });
 }
-function limpiarBusqueda() {
-    const inputBusqueda = document.getElementById('buscar-input');
-    if (inputBusqueda) {
-        inputBusqueda.value = '';
-    }
-    productosFiltrados = [...todosLosProductos];
-    mostrarProductos(productosFiltrados);
-}
-function configurarEventosCarrito() {
-    const btnCarrito = document.getElementById('btn-carrito');
-    const btnCerrarModal = document.getElementById('btn-cerrar-modal');
-    const modalCarrito = document.getElementById('modal-carrito');
-    const btnFinalizarCompra = document.getElementById('btn-finalizar-compra');
-    if (btnCarrito) {
-        btnCarrito.addEventListener('click', abrirCarrito);
-    }
-    if (btnCerrarModal) {
-        btnCerrarModal.addEventListener('click', cerrarCarrito);
-    }
-    if (modalCarrito) {
-        modalCarrito.addEventListener('click', (e) => {
-            if (e.target === modalCarrito) {
-                cerrarCarrito();
-            }
-        });
-    }
-    if (btnFinalizarCompra) {
-        btnFinalizarCompra.addEventListener('click', finalizarCompra);
-    }
-}
-function agregarAlCarrito(productoId) {
-    const producto = todosLosProductos.find(p => p.id === productoId);
-    if (!producto)
-        return;
-    // Verificar si ya está en el carrito
-    const yaEnCarrito = carrito.find(item => item.id === productoId);
-    if (yaEnCarrito) {
-        mostrarAlerta('Producto ya agregado', 'Este producto ya está en tu carrito.', 'info');
+// Agregar al carrito (función global)
+window.agregarAlCarrito = function (idProducto) {
+    const producto = todosLosProductos.find(p => p.id === idProducto);
+    if (!producto) {
+        mostrarAlerta('Error', 'Producto no encontrado', 'error');
         return;
     }
     const productoCarrito = {
@@ -157,75 +126,14 @@ function agregarAlCarrito(productoId) {
         nombre: producto.nombre,
         precio: producto.precio,
         imagen: producto.imagen,
-        vendedor: producto.vendedor
+        vendedor: producto.vendedorNombre
     };
     carrito.push(productoCarrito);
     guardarCarrito();
     actualizarContadorCarrito();
-    console.log('Producto agregado al carrito:', productoCarrito);
-    mostrarAlerta('¡Agregado al carrito!', `"${producto.nombre}" se ha agregado a tu carrito de compras.`, 'exito');
-}
-function eliminarDelCarrito(productoId) {
-    carrito = carrito.filter(item => item.id !== productoId);
-    guardarCarrito();
-    actualizarContadorCarrito();
-    mostrarCarrito();
-}
-function abrirCarrito() {
-    const modal = document.getElementById('modal-carrito');
-    if (modal) {
-        modal.classList.add('active');
-        mostrarCarrito();
-    }
-}
-function cerrarCarrito() {
-    const modal = document.getElementById('modal-carrito');
-    if (modal) {
-        modal.classList.remove('active');
-    }
-}
-function mostrarCarrito() {
-    const carritoItems = document.getElementById('carrito-items');
-    const totalCarrito = document.getElementById('total-carrito');
-    const btnFinalizar = document.getElementById('btn-finalizar-compra');
-    if (!carritoItems || !totalCarrito)
-        return;
-    if (carrito.length === 0) {
-        carritoItems.innerHTML = '<p class="carrito-vacio">Tu carrito está vacío</p>';
-        totalCarrito.textContent = '$0.00';
-        if (btnFinalizar)
-            btnFinalizar.disabled = true;
-        return;
-    }
-    carritoItems.innerHTML = carrito.map(item => `
-        <div class="carrito-item">
-            <img src="${item.imagen}" alt="${item.nombre}">
-            <div class="carrito-item-info">
-                <h4>${item.nombre}</h4>
-                <p class="vendedor">Vendedor: ${item.vendedor}</p>
-                <p class="carrito-item-precio">$${item.precio.toFixed(2)}</p>
-            </div>
-            <div class="carrito-item-acciones">
-                <button class="btn-eliminar-item" onclick="eliminarDelCarrito(${item.id})">
-                    Eliminar
-                </button>
-            </div>
-        </div>
-    `).join('');
-    const total = carrito.reduce((sum, item) => sum + item.precio, 0);
-    totalCarrito.textContent = `$${total.toFixed(2)}`;
-    if (btnFinalizar)
-        btnFinalizar.disabled = false;
-}
-function actualizarContadorCarrito() {
-    const contador = document.querySelector('.carrito-count');
-    if (contador) {
-        contador.textContent = carrito.length.toString();
-    }
-}
-function guardarCarrito() {
-    localStorage.setItem('carrito', JSON.stringify(carrito));
-}
+    mostrarAlerta('Producto agregado', `${producto.nombre} se agregó al carrito`, 'exito');
+};
+// Cargar carrito desde localStorage (temporal, hasta migrar)
 function cargarCarrito() {
     const carritoGuardado = localStorage.getItem('carrito');
     if (carritoGuardado) {
@@ -233,87 +141,69 @@ function cargarCarrito() {
         actualizarContadorCarrito();
     }
 }
-function finalizarCompra() {
-    if (carrito.length === 0)
-        return;
-    const total = carrito.reduce((sum, item) => sum + item.precio, 0);
-    mostrarConfirmacion('¿Confirmar compra?', `Total a pagar: $${total.toFixed(2)}\nProductos: ${carrito.length}\n\n¿Deseas proceder con la compra?`, () => {
-        // Usuario confirmó
-        mostrarAlerta('¡Compra realizada!', 'Tu compra se ha procesado exitosamente. ¡Gracias por tu preferencia!', 'exito');
-        carrito = [];
-        guardarCarrito();
-        actualizarContadorCarrito();
-        cerrarCarrito();
-    });
+function guardarCarrito() {
+    localStorage.setItem('carrito', JSON.stringify(carrito));
 }
+function actualizarContadorCarrito() {
+    const contador = document.querySelector('.carrito-count');
+    if (contador) {
+        contador.textContent = carrito.length.toString();
+    }
+}
+// Configurar eventos del carrito
+function configurarEventosCarrito() {
+    const btnCarrito = document.getElementById('btn-carrito');
+    if (btnCarrito) {
+        btnCarrito.addEventListener('click', () => {
+            window.location.href = '/components/carrito/carrito.html';
+        });
+    }
+}
+// Verificar tipo de usuario
 function verificarTipoUsuario() {
     const usuarioActivo = localStorage.getItem('usuarioActivo');
     if (usuarioActivo) {
         const usuario = JSON.parse(usuarioActivo);
-        // Si es vendedor, redirigir a su dashboard
         if (usuario.tipo === 'vendedor') {
             window.location.href = '/components/dashboard/dashboard-vendedor.html';
         }
     }
 }
-function moverCarrusel(direccion) {
-    posicionActual += direccion;
-    if (posicionActual < 0) {
-        posicionActual = 0;
-    }
-    else if (posicionActual > maxPosicion) {
-        posicionActual = maxPosicion;
-    }
-    const tarjeta = document.querySelector('.producto-card');
-    if (tarjeta && carrusel) {
-        const anchoTarjeta = tarjeta.offsetWidth;
-        const gap = 20;
-        const desplazamiento = -(posicionActual * (anchoTarjeta + gap));
-        carrusel.style.transform = `translateX(${desplazamiento}px)`;
-    }
-}
-// Hacer la función disponible globalmente para compatibilidad
-window.moverCarrusel = moverCarrusel;
-window.agregarAlCarrito = agregarAlCarrito;
-window.eliminarDelCarrito = eliminarDelCarrito;
-window.limpiarBusqueda = limpiarBusqueda;
+// Actualizar botón de login
 function actualizarBotonLogin() {
-    const usuarioActivo = localStorage.getItem('usuarioActivo');
     const btnLogin = document.querySelector('.btn-login');
     const btnCerrarSesion = document.getElementById('btn-cerrar-sesion');
-    if (btnLogin) {
-        if (usuarioActivo) {
-            // Usuario está logueado
-            const usuario = JSON.parse(usuarioActivo);
-            btnLogin.textContent = 'Mi Cuenta';
-            btnLogin.onclick = () => {
-                mostrarAlerta(`¡Bienvenido ${usuario.nombreEmpresa || usuario.nombre}!`, `Tipo de cuenta: ${usuario.tipo}\nEmail: ${usuario.email}`, 'info');
-            };
-            // Mostrar botón de cerrar sesión
-            if (btnCerrarSesion) {
-                btnCerrarSesion.style.display = 'block';
-                btnCerrarSesion.onclick = cerrarSesion;
-            }
+    const usuarioActivo = localStorage.getItem('usuarioActivo');
+    if (usuarioActivo) {
+        const usuario = JSON.parse(usuarioActivo);
+        if (btnLogin) {
+            btnLogin.textContent = `Hola, ${usuario.nombre || usuario.nombreEmpresa || 'Usuario'}`;
+            btnLogin.style.display = 'inline-block';
         }
-        else {
-            // No hay sesión activa
-            btnLogin.textContent = 'Iniciar Sesión';
-            btnLogin.onclick = () => {
-                window.location.href = '/components/login/login.html';
-            };
-            // Ocultar botón de cerrar sesión
-            if (btnCerrarSesion) {
-                btnCerrarSesion.style.display = 'none';
-            }
+        if (btnCerrarSesion) {
+            btnCerrarSesion.style.display = 'inline-block';
         }
     }
-}
-function cerrarSesion() {
-    mostrarConfirmacion('Cerrar sesión', '¿Estás seguro de que deseas cerrar sesión?', () => {
+    else {
+        if (btnLogin) {
+            btnLogin.textContent = 'Iniciar Sesión';
+            btnLogin.style.display = 'inline-block';
+        }
+        if (btnCerrarSesion) {
+            btnCerrarSesion.style.display = 'none';
+        }
+    }
+    btnLogin === null || btnLogin === void 0 ? void 0 : btnLogin.addEventListener('click', () => {
+        if (usuarioActivo) {
+            window.location.href = '/components/dashboard/dashboard-vendedor.html';
+        }
+        else {
+            window.location.href = '/components/login/login.html';
+        }
+    });
+    btnCerrarSesion === null || btnCerrarSesion === void 0 ? void 0 : btnCerrarSesion.addEventListener('click', () => {
         localStorage.removeItem('usuarioActivo');
-        localStorage.removeItem('carrito');
-        window.location.href = '/components/login/login.html';
+        window.location.reload();
     });
 }
-export {};
 //# sourceMappingURL=dashboard.js.map
