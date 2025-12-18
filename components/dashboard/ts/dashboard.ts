@@ -1,3 +1,7 @@
+// Declarar funciones de alertas globales
+declare function mostrarAlerta(titulo: string, mensaje: string, tipo: 'exito' | 'error' | 'info'): void;
+declare function mostrarConfirmacion(titulo: string, mensaje: string, onAceptar: () => void, onCancelar?: () => void): void;
+
 // Carrusel de productos
 let posicionActual: number = 0;
 let carrusel: HTMLElement | null;
@@ -120,7 +124,11 @@ function realizarBusqueda(): void {
     const termino = inputBusqueda.value.trim();
     
     if (termino === '') {
-        alert('Por favor, ingrese al menos una palabra clave para realizar la búsqueda.');
+        mostrarAlerta(
+            'Campo vacío',
+            'Por favor, ingrese al menos una palabra clave para realizar la búsqueda.',
+            'info'
+        );
         return;
     }
     
@@ -200,7 +208,11 @@ function agregarAlCarrito(productoId: number): void {
     // Verificar si ya está en el carrito
     const yaEnCarrito = carrito.find(item => item.id === productoId);
     if (yaEnCarrito) {
-        alert('Este producto ya está en tu carrito');
+        mostrarAlerta(
+            'Producto ya agregado',
+            'Este producto ya está en tu carrito.',
+            'info'
+        );
         return;
     }
     
@@ -217,7 +229,12 @@ function agregarAlCarrito(productoId: number): void {
     actualizarContadorCarrito();
     
     console.log('Producto agregado al carrito:', productoCarrito);
-    alert(`"${producto.nombre}" agregado al carrito`);
+    
+    mostrarAlerta(
+        '¡Agregado al carrito!',
+        `"${producto.nombre}" se ha agregado a tu carrito de compras.`,
+        'exito'
+    );
 }
 
 function eliminarDelCarrito(productoId: number): void {
@@ -301,17 +318,24 @@ function finalizarCompra(): void {
     if (carrito.length === 0) return;
     
     const total = carrito.reduce((sum, item) => sum + item.precio, 0);
-    const confirmacion = confirm(
-        `¿Confirmar compra?\n\nTotal: $${total.toFixed(2)}\nProductos: ${carrito.length}`
-    );
     
-    if (confirmacion) {
-        alert('¡Compra realizada con éxito! Gracias por tu compra.');
-        carrito = [];
-        guardarCarrito();
-        actualizarContadorCarrito();
-        cerrarCarrito();
-    }
+    mostrarConfirmacion(
+        '¿Confirmar compra?',
+        `Total a pagar: $${total.toFixed(2)}\nProductos: ${carrito.length}\n\n¿Deseas proceder con la compra?`,
+        () => {
+            // Usuario confirmó
+            mostrarAlerta(
+                '¡Compra realizada!',
+                'Tu compra se ha procesado exitosamente. ¡Gracias por tu preferencia!',
+                'exito'
+            );
+            
+            carrito = [];
+            guardarCarrito();
+            actualizarContadorCarrito();
+            cerrarCarrito();
+        }
+    );
 }
 
 function verificarTipoUsuario(): void {
@@ -362,7 +386,11 @@ function actualizarBotonLogin(): void {
             const usuario = JSON.parse(usuarioActivo);
             btnLogin.textContent = 'Mi Cuenta';
             btnLogin.onclick = () => {
-                alert(`Bienvenido ${usuario.nombreEmpresa || usuario.nombre}!\n\nTipo de cuenta: ${usuario.tipo}`);
+                mostrarAlerta(
+                    `¡Bienvenido ${usuario.nombreEmpresa || usuario.nombre}!`,
+                    `Tipo de cuenta: ${usuario.tipo}\nEmail: ${usuario.email}`,
+                    'info'
+                );
             };
             
             // Mostrar botón de cerrar sesión
@@ -386,11 +414,15 @@ function actualizarBotonLogin(): void {
 }
 
 function cerrarSesion(): void {
-    if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
-        localStorage.removeItem('usuarioActivo');
-        localStorage.removeItem('carrito');
-        window.location.href = '/components/login/login.html';
-    }
+    mostrarConfirmacion(
+        'Cerrar sesión',
+        '¿Estás seguro de que deseas cerrar sesión?',
+        () => {
+            localStorage.removeItem('usuarioActivo');
+            localStorage.removeItem('carrito');
+            window.location.href = '/components/login/login.html';
+        }
+    );
 }
 
 // Exportar para convertir en módulo y evitar conflictos

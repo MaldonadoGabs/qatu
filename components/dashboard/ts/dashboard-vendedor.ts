@@ -1,3 +1,7 @@
+// Declarar funciones de alertas globales
+declare function mostrarAlerta(titulo: string, mensaje: string, tipo: 'exito' | 'error' | 'info'): void;
+declare function mostrarConfirmacion(titulo: string, mensaje: string, onAceptar: () => void, onCancelar?: () => void): void;
+
 // Interfaces
 interface Producto {
     id: number;
@@ -37,16 +41,13 @@ function verificarSesion(): void {
     const usuarioActivo = localStorage.getItem('usuarioActivo');
     
     if (!usuarioActivo) {
-        // No hay sesión, redirigir a login
         window.location.href = '/components/login/login.html';
         return;
     }
     
     const usuario: Usuario = JSON.parse(usuarioActivo);
     
-    // Verificar que sea un vendedor
     if (usuario.tipo !== 'vendedor') {
-        // Es comprador, redirigir a index.html
         window.location.href = '../../index.html';
         return;
     }
@@ -66,7 +67,6 @@ function configurarNavegacion(): void {
 }
 
 function cambiarSeccion(nombreSeccion: string): void {
-    // Actualizar navegación activa
     document.querySelectorAll('.nav-item').forEach(item => {
         item.classList.remove('active');
     });
@@ -76,7 +76,6 @@ function cambiarSeccion(nombreSeccion: string): void {
         navActivo.classList.add('active');
     }
     
-    // Mostrar sección correspondiente
     document.querySelectorAll('.seccion-vendedor').forEach(seccion => {
         seccion.classList.remove('active');
     });
@@ -88,7 +87,6 @@ function cambiarSeccion(nombreSeccion: string): void {
     
     seccionActual = nombreSeccion;
     
-    // Actualizar estadísticas si se accede a esa sección
     if (nombreSeccion === 'estadisticas') {
         actualizarEstadisticas();
     }
@@ -124,25 +122,30 @@ function validarYPrevisualizarImagen(e: Event): void {
     
     if (!archivo) return;
     
-    // Validar formato
     const formatosPermitidos = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
     if (formatosPermitidos.indexOf(archivo.type) === -1) {
-        alert('Formato de imagen no válido. Por favor, use JPG, JPEG, PNG o WEBP.');
+        mostrarAlerta(
+            'Formato inválido',
+            'Por favor, use imágenes en formato JPG, JPEG, PNG o WEBP.',
+            'error'
+        );
         input.value = '';
         if (preview) preview.style.display = 'none';
         return;
     }
     
-    // Validar tamaño (5MB máximo)
     const tamañoMaximo = 5 * 1024 * 1024;
     if (archivo.size > tamañoMaximo) {
-        alert('El tamaño de la imagen excede el límite de 5MB. Por favor, seleccione una imagen más pequeña.');
+        mostrarAlerta(
+            'Archivo muy grande',
+            'El tamaño de la imagen excede el límite de 5MB. Por favor, seleccione una imagen más pequeña.',
+            'error'
+        );
         input.value = '';
         if (preview) preview.style.display = 'none';
         return;
     }
     
-    // Mostrar vista previa
     const reader = new FileReader();
     reader.onload = (event) => {
         if (event.target && imgPreview && preview) {
@@ -165,25 +168,25 @@ function publicarProducto(): void {
     const descripcion = (document.getElementById('descripcion-producto') as HTMLTextAreaElement).value.trim();
     const inputImagen = document.getElementById('imagen-producto') as HTMLInputElement;
     
-    // Validar campos obligatorios
     const camposFaltantes: string[] = [];
     
-    if (!nombre) camposFaltantes.push('Nombre del Producto');
-    if (!precioInput || parseFloat(precioInput) <= 0) camposFaltantes.push('Precio válido');
-    if (!categoria) camposFaltantes.push('Categoría');
-    if (!descripcion) camposFaltantes.push('Descripción');
-    if (!inputImagen.files || inputImagen.files.length === 0) camposFaltantes.push('Imagen del Producto');
+    if (!nombre) camposFaltantes.push('• Nombre del Producto');
+    if (!precioInput || parseFloat(precioInput) <= 0) camposFaltantes.push('• Precio válido');
+    if (!categoria) camposFaltantes.push('• Categoría');
+    if (!descripcion) camposFaltantes.push('• Descripción');
+    if (!inputImagen.files || inputImagen.files.length === 0) camposFaltantes.push('• Imagen del Producto');
     
     if (camposFaltantes.length > 0) {
-        const mensaje = 'Por favor, complete los siguientes campos obligatorios:\n\n' + 
-                       camposFaltantes.map(campo => '- ' + campo).join('\n');
-        alert(mensaje);
+        mostrarAlerta(
+            'Campos incompletos',
+            'Por favor, complete los siguientes campos obligatorios:\n\n' + camposFaltantes.join('\n'),
+            'error'
+        );
         return;
     }
     
     const precio = parseFloat(precioInput);
     
-    // Convertir imagen a base64
     if (!inputImagen.files || inputImagen.files.length === 0) return;
     
     const archivo = inputImagen.files[0];
@@ -209,18 +212,19 @@ function publicarProducto(): void {
         guardarProductos();
         
         console.log('Producto publicado:', nuevoProducto);
-        alert(`Producto "${nombre}" publicado exitosamente en el catálogo.`);
         
-        // Limpiar formulario
+        mostrarAlerta(
+            '¡Producto publicado!',
+            `"${nombre}" ha sido agregado exitosamente al catálogo.`,
+            'exito'
+        );
+        
         (document.getElementById('form-producto') as HTMLFormElement).reset();
         const preview = document.getElementById('preview-imagen');
         if (preview) preview.style.display = 'none';
         
-        // Actualizar lista de productos
         mostrarProductos();
         actualizarEstadisticas();
-        
-        // Cambiar a sección de publicar para ver el producto listado
         cambiarSeccion('publicar');
     };
     
@@ -255,17 +259,31 @@ function eliminarProducto(id: number): void {
     const producto = productos.find(p => p.id === id);
     if (!producto) return;
     
-    if (confirm(`¿Estás seguro de eliminar "${producto.nombre}"?`)) {
-        productos = productos.filter(p => p.id !== id);
-        guardarProductos();
-        mostrarProductos();
-        actualizarEstadisticas();
-        console.log('Producto eliminado:', producto);
-    }
+    mostrarConfirmacion(
+        'Confirmar eliminación',
+        `¿Estás seguro de que deseas eliminar "${producto.nombre}"?\n\nEsta acción no se puede deshacer.`,
+        () => {
+            productos = productos.filter(p => p.id !== id);
+            guardarProductos();
+            mostrarProductos();
+            actualizarEstadisticas();
+            console.log('Producto eliminado:', producto);
+            
+            mostrarAlerta(
+                'Producto eliminado',
+                `"${producto.nombre}" ha sido eliminado del catálogo.`,
+                'exito'
+            );
+        }
+    );
 }
 
 function editarProducto(id: number): void {
-    alert('Función de edición en desarrollo');
+    mostrarAlerta(
+        'Función en desarrollo',
+        'La edición de productos estará disponible próximamente.',
+        'info'
+    );
 }
 
 function guardarProductos(): void {
@@ -276,7 +294,6 @@ function cargarProductos(): void {
     const productosGuardados = localStorage.getItem('productosVendedor');
     if (productosGuardados) {
         productos = JSON.parse(productosGuardados);
-        // Actualizar el contador
         if (productos.length > 0) {
             productoIdCounter = Math.max(...productos.map(p => p.id)) + 1;
         }
@@ -291,9 +308,9 @@ function actualizarEstadisticas(): void {
     const statCalificacion = document.getElementById('stat-calificacion');
     
     if (statProductos) statProductos.textContent = productos.length.toString();
-    if (statVentas) statVentas.textContent = '$0.00'; // Por ahora
-    if (statVendidos) statVendidos.textContent = '0'; // Por ahora
-    if (statCalificacion) statCalificacion.textContent = '0.0'; // Por ahora
+    if (statVentas) statVentas.textContent = '$0.00';
+    if (statVendidos) statVendidos.textContent = '0';
+    if (statCalificacion) statCalificacion.textContent = '0.0';
 }
 
 function actualizarBotonLogin(): void {
@@ -315,17 +332,24 @@ function actualizarBotonLogin(): void {
 }
 
 function mostrarMenuCuenta(usuario: Usuario): void {
-    alert(`Bienvenido ${usuario.nombreEmpresa}!\n\nTipo de cuenta: ${usuario.tipo}`);
+    mostrarAlerta(
+        `¡Bienvenido ${usuario.nombreEmpresa}!`,
+        `Tipo de cuenta: ${usuario.tipo}\nEmail: ${usuario.email}`,
+        'info'
+    );
 }
 
 function cerrarSesion(): void {
-    if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
-        localStorage.removeItem('usuarioActivo');
-        window.location.href = '/components/login/login.html';
-    }
+    mostrarConfirmacion(
+        'Cerrar sesión',
+        '¿Estás seguro de que deseas cerrar sesión?',
+        () => {
+            localStorage.removeItem('usuarioActivo');
+            window.location.href = '/components/login/login.html';
+        }
+    );
 }
 
-// Hacer funciones disponibles globalmente
 (window as any).eliminarProducto = eliminarProducto;
 (window as any).editarProducto = editarProducto;
 

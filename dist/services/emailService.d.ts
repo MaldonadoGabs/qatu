@@ -1,12 +1,8 @@
-interface EmailVerificationData {
-    email: string;
-    verificationCode: string;
+export interface EmailParams {
+    to_email: string;
+    nombre: string;
+    codigo: string;
 }
-export declare class EmailService {
-    private transporter;
-    constructor();
-    sendVerificationEmail(data: EmailVerificationData): Promise<boolean>;
-    sendWelcomeEmail(email: string, nombre: string): Promise<boolean>;
-}
-export {};
+export declare function enviarCodigoVerificacion(params: EmailParams): Promise<boolean>;
+export declare function enviarEmailBienvenida(email: string, nombre: string): Promise<boolean>;
 //# sourceMappingURL=emailService.d.ts.map
