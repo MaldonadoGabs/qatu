@@ -1,85 +1,54 @@
-import { notifications } from '../../shared/notifications';
 class VerificacionPage {
     constructor() {
-        this.emailUsuario = '';
-        this.inputs = document.querySelectorAll('.codigo-input');
         this.form = document.getElementById('form-verificacion');
+        this.inputs = document.querySelectorAll('.codigo-input');
         this.btnReenviar = document.getElementById('btn-reenviar');
+        if (!this.form || !this.inputs.length) {
+            console.error('No se encontraron los elementos necesarios');
+            return;
+        }
         this.init();
     }
     init() {
-        // Obtener email del usuario pendiente
-        const usuarioPendiente = this.obtenerUsuarioPendiente();
-        if (!usuarioPendiente) {
-            notifications.error('No hay proceso de verificación en curso');
-            setTimeout(() => {
-                window.location.href = './registro/registro.html';
-            }, 2000);
-            return;
-        }
-        this.emailUsuario = usuarioPendiente.email;
+        var _a;
         this.configurarInputs();
         this.configurarFormulario();
         this.configurarReenvio();
-    }
-    obtenerUsuarioPendiente() {
-        const usuariosPendientes = JSON.parse(localStorage.getItem('usuariosPendientes') || '[]');
-        return usuariosPendientes[usuariosPendientes.length - 1] || null;
+        // Enfocar el primer input
+        (_a = this.inputs[0]) === null || _a === void 0 ? void 0 : _a.focus();
     }
     configurarInputs() {
         this.inputs.forEach((input, index) => {
-            input.addEventListener('input', (e) => this.manejarInput(e, index));
-            input.addEventListener('keydown', (e) => this.manejarKeydown(e, index));
-            input.addEventListener('paste', (e) => this.manejarPaste(e));
+            // Permitir solo números
+            input.addEventListener('input', (e) => {
+                const target = e.target;
+                target.value = target.value.replace(/[^0-9]/g, '');
+                // Auto-focus al siguiente input
+                if (target.value && index < this.inputs.length - 1) {
+                    this.inputs[index + 1].focus();
+                }
+            });
+            // Manejar backspace
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && !input.value && index > 0) {
+                    this.inputs[index - 1].focus();
+                }
+            });
+            // Manejar paste
+            input.addEventListener('paste', (e) => {
+                var _a, _b;
+                e.preventDefault();
+                const pastedData = (_a = e.clipboardData) === null || _a === void 0 ? void 0 : _a.getData('text');
+                if (pastedData && /^\d{6}$/.test(pastedData)) {
+                    pastedData.split('').forEach((char, i) => {
+                        if (this.inputs[i]) {
+                            this.inputs[i].value = char;
+                        }
+                    });
+                    (_b = this.inputs[5]) === null || _b === void 0 ? void 0 : _b.focus();
+                }
+            });
         });
-        // Enfocar el primer input
-        this.inputs[0].focus();
-    }
-    manejarInput(e, index) {
-        const input = e.target;
-        const valor = input.value;
-        // Solo permitir números
-        if (!/^\d*$/.test(valor)) {
-            input.value = '';
-            return;
-        }
-        // Remover clase de error si existe
-        input.classList.remove('error');
-        // Mover al siguiente input si hay valor
-        if (valor && index < this.inputs.length - 1) {
-            this.inputs[index + 1].focus();
-        }
-    }
-    manejarKeydown(e, index) {
-        const input = e.target;
-        // Retroceso: mover al input anterior
-        if (e.key === 'Backspace' && !input.value && index > 0) {
-            this.inputs[index - 1].focus();
-        }
-        // Flecha izquierda
-        if (e.key === 'ArrowLeft' && index > 0) {
-            this.inputs[index - 1].focus();
-        }
-        // Flecha derecha
-        if (e.key === 'ArrowRight' && index < this.inputs.length - 1) {
-            this.inputs[index + 1].focus();
-        }
-    }
-    manejarPaste(e) {
-        var _a;
-        e.preventDefault();
-        const pasteData = (_a = e.clipboardData) === null || _a === void 0 ? void 0 : _a.getData('text');
-        if (!pasteData)
-            return;
-        const codigo = pasteData.replace(/\D/g, '').slice(0, 6);
-        codigo.split('').forEach((digito, index) => {
-            if (index < this.inputs.length) {
-                this.inputs[index].value = digito;
-            }
-        });
-        // Enfocar el último input con valor o el último disponible
-        const ultimoIndex = Math.min(codigo.length, this.inputs.length - 1);
-        this.inputs[ultimoIndex].focus();
     }
     configurarFormulario() {
         this.form.addEventListener('submit', (e) => {
@@ -92,133 +61,79 @@ class VerificacionPage {
             this.reenviarCodigo();
         });
     }
-    obtenerCodigoIngresado() {
-        let codigo = '';
-        this.inputs.forEach(input => {
-            codigo += input.value;
-        });
-        return codigo;
-    }
     verificarCodigo() {
-        const codigoIngresado = this.obtenerCodigoIngresado();
-        if (codigoIngresado.length !== 6) {
-            notifications.error('Por favor, ingresa el código completo');
-            this.marcarInputsComoError();
+        const codigo = Array.from(this.inputs)
+            .map(input => input.value)
+            .join('');
+        if (codigo.length !== 6) {
+            mostrarAlerta('Código incompleto', 'Por favor, ingresa los 6 dígitos del código.', 'error');
             return;
         }
-        const usuarioPendiente = this.obtenerUsuarioPendiente();
-        if (!usuarioPendiente) {
-            notifications.error('No se encontró información de verificación');
-            return;
-        }
-        // Verificar si el código expiró
-        const ahora = new Date();
-        const fechaExpiracion = new Date(usuarioPendiente.fechaExpiracionCodigo);
-        if (ahora > fechaExpiracion) {
-            notifications.error('El código ha expirado. Por favor, solicita uno nuevo');
-            this.marcarInputsComoError();
-            return;
-        }
-        // Verificar el código
-        if (codigoIngresado === usuarioPendiente.codigoVerificacion) {
-            this.procesarVerificacionExitosa(usuarioPendiente);
-        }
-        else {
-            notifications.error('Código incorrecto. Por favor, verifica e intenta nuevamente');
-            this.marcarInputsComoError();
+        // Obtener usuario pendiente
+        const usuariosPendientes = JSON.parse(localStorage.getItem('usuariosPendientes') || '[]');
+        const usuarioIndex = usuariosPendientes.findIndex((u) => u.codigoVerificacion === codigo && !u.verificado);
+        if (usuarioIndex === -1) {
+            mostrarAlerta('Código inválido', 'El código ingresado es incorrecto o ha expirado.', 'error');
             this.limpiarInputs();
+            return;
         }
-    }
-    procesarVerificacionExitosa(usuario) {
-        // Marcar como verificado
+        const usuario = usuariosPendientes[usuarioIndex];
+        // Verificar expiración
+        const fechaExpiracion = new Date(usuario.fechaExpiracionCodigo);
+        if (new Date() > fechaExpiracion) {
+            mostrarAlerta('Código expirado', 'El código ha expirado. Por favor, solicita uno nuevo.', 'error');
+            this.limpiarInputs();
+            return;
+        }
+        // Mover usuario a la lista de verificados
         usuario.verificado = true;
-        delete usuario.codigoVerificacion;
-        delete usuario.fechaExpiracionCodigo;
-        // Guardar en usuarios verificados
+        usuariosPendientes.splice(usuarioIndex, 1);
         const usuarios = JSON.parse(localStorage.getItem('usuarios') || '[]');
         usuarios.push(usuario);
         localStorage.setItem('usuarios', JSON.stringify(usuarios));
-        // Eliminar de usuarios pendientes
-        const usuariosPendientes = JSON.parse(localStorage.getItem('usuariosPendientes') || '[]');
-        const nuevosPendientes = usuariosPendientes.filter((u) => u.email !== usuario.email);
-        localStorage.setItem('usuariosPendientes', JSON.stringify(nuevosPendientes));
-        // Guardar sesión activa
-        const usuarioActivo = {
-            id: usuario.email,
-            email: usuario.email,
-            tipo: usuario.tipo,
-            nombre: usuario.nombre,
-            nombreEmpresa: usuario.nombreEmpresa,
-            ruc: usuario.ruc
-        };
-        localStorage.setItem('usuarioActivo', JSON.stringify(usuarioActivo));
-        // Mostrar notificación de éxito
-        notifications.success('¡Cuenta verificada exitosamente!');
-        // Obtener la URL base
-        const baseUrl = window.location.origin;
-        // Redirigir al login después de 2 segundos
-        // Redirigir según el tipo de usuario
+        localStorage.setItem('usuariosPendientes', JSON.stringify(usuariosPendientes));
+        localStorage.setItem('usuarioActivo', JSON.stringify(usuario));
+        mostrarAlerta('¡Verificación exitosa!', 'Tu cuenta ha sido verificada correctamente. Redirigiendo...', 'exito');
+        // Redirigir según tipo de usuario
         setTimeout(() => {
             if (usuario.tipo === 'vendedor') {
-                window.location.href = './components/dashboard/dashboard-vendedor.html';
+                window.location.href = '/components/dashboard/dashboard-vendedor.html';
             }
             else {
-                window.location.href = './public/index.html';
+                window.location.href = '/index.html';
             }
         }, 2000);
     }
-    marcarInputsComoError() {
-        this.inputs.forEach(input => {
-            input.classList.add('error');
-        });
-        setTimeout(() => {
-            this.inputs.forEach(input => {
-                input.classList.remove('error');
-            });
-        }, 1000);
+    reenviarCodigo() {
+        const usuariosPendientes = JSON.parse(localStorage.getItem('usuariosPendientes') || '[]');
+        if (usuariosPendientes.length === 0) {
+            mostrarAlerta('Sin usuarios pendientes', 'No hay ninguna cuenta pendiente de verificación.', 'error');
+            return;
+        }
+        // Tomar el último usuario pendiente
+        const usuario = usuariosPendientes[usuariosPendientes.length - 1];
+        // Generar nuevo código
+        const nuevoCodigo = Math.floor(100000 + Math.random() * 900000).toString();
+        const fechaExpiracion = new Date();
+        fechaExpiracion.setMinutes(fechaExpiracion.getMinutes() + 15);
+        usuario.codigoVerificacion = nuevoCodigo;
+        usuario.fechaExpiracionCodigo = fechaExpiracion.toISOString();
+        localStorage.setItem('usuariosPendientes', JSON.stringify(usuariosPendientes));
+        console.log('Nuevo código de verificación:', nuevoCodigo);
+        mostrarAlerta('Código reenviado', `Nuevo código: ${nuevoCodigo}\n\n(Revisa la consola del navegador)`, 'exito');
+        this.limpiarInputs();
     }
     limpiarInputs() {
+        var _a;
         this.inputs.forEach(input => {
             input.value = '';
         });
-        this.inputs[0].focus();
-    }
-    reenviarCodigo() {
-        // Deshabilitar botón temporalmente
-        this.btnReenviar.disabled = true;
-        const usuarioPendiente = this.obtenerUsuarioPendiente();
-        if (!usuarioPendiente) {
-            notifications.error('No se encontró información de verificación');
-            this.btnReenviar.disabled = false;
-            return;
-        }
-        // Generar nuevo código
-        const nuevoCodigoVerificacion = this.generarCodigoVerificacion();
-        const fechaExpiracion = new Date();
-        fechaExpiracion.setMinutes(fechaExpiracion.getMinutes() + 15);
-        // Actualizar usuario pendiente
-        usuarioPendiente.codigoVerificacion = nuevoCodigoVerificacion;
-        usuarioPendiente.fechaExpiracionCodigo = fechaExpiracion.toISOString();
-        const usuariosPendientes = JSON.parse(localStorage.getItem('usuariosPendientes') || '[]');
-        const index = usuariosPendientes.findIndex((u) => u.email === usuarioPendiente.email);
-        if (index !== -1) {
-            usuariosPendientes[index] = usuarioPendiente;
-            localStorage.setItem('usuariosPendientes', JSON.stringify(usuariosPendientes));
-        }
-        // Simular envío de email (en producción, aquí iría la llamada al servicio de email)
-        console.log('Nuevo código de verificación:', nuevoCodigoVerificacion);
-        notifications.success('Se ha enviado un nuevo código a tu correo electrónico');
-        // Habilitar botón después de 30 segundos
-        setTimeout(() => {
-            this.btnReenviar.disabled = false;
-        }, 30000);
-    }
-    generarCodigoVerificacion() {
-        return Math.floor(100000 + Math.random() * 900000).toString();
+        (_a = this.inputs[0]) === null || _a === void 0 ? void 0 : _a.focus();
     }
 }
 // Inicializar cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', () => {
     new VerificacionPage();
 });
+export {};
 //# sourceMappingURL=verificacion.js.map

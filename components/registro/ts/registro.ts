@@ -1,10 +1,12 @@
-import { notifications } from '../../shared/notifications.js';
+// Declarar la función de alertas global
+declare function mostrarAlerta(titulo: string, mensaje: string, tipo: 'exito' | 'error' | 'info'): void;
 
 interface UsuarioPendiente {
     email: string;
     password: string;
     tipo: 'comprador' | 'vendedor';
     nombre?: string;
+    apellido?: string;
     nombreEmpresa?: string;
     ruc?: string;
     telefono?: string;
@@ -15,22 +17,29 @@ interface UsuarioPendiente {
 }
 
 class RegistroPage {
-    private form: HTMLFormElement;
+    private formComprador: HTMLFormElement;
+    private formVendedor: HTMLFormElement;
     private tipoUsuario: 'comprador' | 'vendedor' = 'comprador';
     private btnComprador: HTMLButtonElement;
     private btnVendedor: HTMLButtonElement;
 
     constructor() {
-        this.form = document.getElementById('registro-form') as HTMLFormElement;
+        this.formComprador = document.getElementById('form-comprador') as HTMLFormElement;
+        this.formVendedor = document.getElementById('form-vendedor') as HTMLFormElement;
         this.btnComprador = document.getElementById('btn-comprador') as HTMLButtonElement;
         this.btnVendedor = document.getElementById('btn-vendedor') as HTMLButtonElement;
+        
+        if (!this.formComprador || !this.formVendedor) {
+            console.error('No se encontraron los formularios');
+            return;
+        }
         
         this.init();
     }
 
     private init(): void {
         this.configurarTipoUsuario();
-        this.configurarFormulario();
+        this.configurarFormularios();
     }
 
     private configurarTipoUsuario(): void {
@@ -49,41 +58,36 @@ class RegistroPage {
         if (tipo === 'comprador') {
             this.btnComprador.classList.add('active');
             this.btnVendedor.classList.remove('active');
+            this.formComprador.style.display = 'block';
+            this.formVendedor.style.display = 'none';
         } else {
             this.btnVendedor.classList.add('active');
             this.btnComprador.classList.remove('active');
-        }
-
-        this.actualizarFormulario();
-    }
-
-    private actualizarFormulario(): void {
-        // Implementar lógica para mostrar/ocultar campos según tipo de usuario
-        // Por ahora solo cambiaremos el placeholder del nombre
-        const nombreInput = document.getElementById('nombre') as HTMLInputElement;
-        if (nombreInput) {
-            if (this.tipoUsuario === 'vendedor') {
-                nombreInput.placeholder = 'Nombre de la empresa';
-            } else {
-                nombreInput.placeholder = 'Nombre completo';
-            }
+            this.formVendedor.style.display = 'block';
+            this.formComprador.style.display = 'none';
         }
     }
 
-    private configurarFormulario(): void {
-        this.form.addEventListener('submit', (e) => {
+    private configurarFormularios(): void {
+        this.formComprador.addEventListener('submit', (e) => {
             e.preventDefault();
-            this.procesarRegistro();
+            this.procesarRegistroComprador();
+        });
+
+        this.formVendedor.addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.procesarRegistroVendedor();
         });
     }
 
-    private async procesarRegistro(): Promise<void> {
-        const formData = new FormData(this.form);
+    private async procesarRegistroComprador(): Promise<void> {
+        const formData = new FormData(this.formComprador);
         
+        const nombre = formData.get('nombre') as string;
+        const apellido = formData.get('apellido') as string;
         const email = formData.get('email') as string;
         const password = formData.get('password') as string;
         const confirmPassword = formData.get('confirm-password') as string;
-        const nombre = formData.get('nombre') as string;
 
         // Validaciones
         if (!this.validarFormulario(email, password, confirmPassword, nombre)) {
@@ -92,7 +96,11 @@ class RegistroPage {
 
         // Verificar si el email ya existe
         if (this.emailYaRegistrado(email)) {
-            notifications.error('Este correo electrónico ya está registrado');
+            mostrarAlerta(
+                'Email ya registrado',
+                'Este correo electrónico ya está registrado. Por favor, inicia sesión.',
+                'error'
+            );
             return;
         }
 
@@ -104,72 +112,128 @@ class RegistroPage {
         // Crear usuario pendiente
         const usuarioPendiente: UsuarioPendiente = {
             email: email,
-            password: password, // En producción, esto debería hashearse antes de guardar
-            tipo: this.tipoUsuario,
+            password: password,
+            tipo: 'comprador',
+            nombre: nombre,
+            apellido: apellido,
             verificado: false,
             codigoVerificacion: codigoVerificacion,
             fechaExpiracionCodigo: fechaExpiracion.toISOString()
         };
 
-        if (this.tipoUsuario === 'comprador') {
-            usuarioPendiente.nombre = nombre;
-        } else {
-            usuarioPendiente.nombreEmpresa = nombre;
-            usuarioPendiente.ruc = formData.get('ruc') as string;
-        }
+        this.guardarYRedirigir(usuarioPendiente, codigoVerificacion, email);
+    }
 
-        // Guardar en localStorage (temporal)
-        this.guardarUsuarioPendiente(usuarioPendiente);
+    private async procesarRegistroVendedor(): Promise<void> {
+        const formData = new FormData(this.formVendedor);
+        
+        const nombreEmpresa = formData.get('nombre-empresa') as string;
+        const email = formData.get('email-vendedor') as string;
+        const password = formData.get('password-vendedor') as string;
+        const confirmPassword = formData.get('confirm-password-vendedor') as string;
 
-        // Enviar email de verificación
-        try {
-            // Por ahora seguimos mostrando en consola para pruebas
-            console.log('Código de verificación:', codigoVerificacion);
-            console.log('Email destinatario:', email);
-            
-            // TODO: Implementar envío real de email cuando se configure el backend
-            // const emailService = new EmailService();
-            // await emailService.sendVerificationEmail({
-            //     email: email,
-            //     verificationCode: codigoVerificacion
-            // });
-            
-            notifications.success('Se ha enviado un código de verificación a tu correo electrónico');
-        } catch (error) {
-            console.error('Error al enviar email:', error);
-            notifications.error('No se pudo enviar el código de verificación. Intenta nuevamente.');
+        // Validaciones
+        if (!this.validarFormulario(email, password, confirmPassword, nombreEmpresa)) {
             return;
         }
 
-        // Redirigir a página de verificación después de 2 segundos
-        setTimeout(() => {
-            window.location.href = '/componentes/verificacion/verificacion.html';
-        }, 2000);
+        // Verificar si el email ya existe
+        if (this.emailYaRegistrado(email)) {
+            mostrarAlerta(
+                'Email ya registrado',
+                'Este correo electrónico ya está registrado. Por favor, inicia sesión.',
+                'error'
+            );
+            return;
+        }
+
+        // Generar código de verificación
+        const codigoVerificacion = this.generarCodigoVerificacion();
+        const fechaExpiracion = new Date();
+        fechaExpiracion.setMinutes(fechaExpiracion.getMinutes() + 15);
+
+        // Crear usuario pendiente
+        const usuarioPendiente: UsuarioPendiente = {
+            email: email,
+            password: password,
+            tipo: 'vendedor',
+            nombreEmpresa: nombreEmpresa,
+            verificado: false,
+            codigoVerificacion: codigoVerificacion,
+            fechaExpiracionCodigo: fechaExpiracion.toISOString()
+        };
+
+        this.guardarYRedirigir(usuarioPendiente, codigoVerificacion, email);
+    }
+
+    private guardarYRedirigir(usuario: UsuarioPendiente, codigo: string, email: string): void {
+        // Guardar en localStorage
+        this.guardarUsuarioPendiente(usuario);
+
+        try {
+            console.log('Código de verificación:', codigo);
+            console.log('Email destinatario:', email);
+            
+            mostrarAlerta(
+                '¡Registro exitoso!',
+                'Se ha enviado un código de verificación a tu correo electrónico. Revisa tu bandeja de entrada.',
+                'exito'
+            );
+            
+            // Redirigir a página de verificación
+            setTimeout(() => {
+                window.location.href = '/components/verificacion/verificacion.html';
+            }, 2000);
+            
+        } catch (error) {
+            console.error('Error al enviar email:', error);
+            mostrarAlerta(
+                'Error al enviar código',
+                'No se pudo enviar el código de verificación. Por favor, intenta nuevamente.',
+                'error'
+            );
+        }
     }
 
     private validarFormulario(email: string, password: string, confirmPassword: string, nombre: string): boolean {
         // Validar email
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
-            notifications.error('Por favor, ingresa un correo electrónico válido');
+            mostrarAlerta(
+                'Email inválido',
+                'Por favor, ingresa un correo electrónico válido.',
+                'error'
+            );
             return false;
         }
 
         // Validar nombre
         if (!nombre || nombre.trim().length < 3) {
-            notifications.error('El nombre debe tener al menos 3 caracteres');
+            mostrarAlerta(
+                'Nombre muy corto',
+                'El nombre debe tener al menos 3 caracteres.',
+                'error'
+            );
             return false;
         }
 
         // Validar contraseña
         if (password.length < 8) {
-            notifications.error('La contraseña debe tener al menos 8 caracteres');
+            mostrarAlerta(
+                'Contraseña débil',
+                'La contraseña debe tener al menos 8 caracteres para mayor seguridad.',
+                'error'
+            );
             return false;
         }
 
         // Validar confirmación de contraseña
         if (password !== confirmPassword) {
-            notifications.error('Las contraseñas no coinciden');
+            mostrarAlerta(
+                'Contraseñas no coinciden',
+                'Las contraseñas ingresadas no son iguales. Por favor, verifícalas.',
+                'error'
+            );
             return false;
         }
 
@@ -203,3 +267,5 @@ class RegistroPage {
 document.addEventListener('DOMContentLoaded', () => {
     new RegistroPage();
 });
+
+export {};

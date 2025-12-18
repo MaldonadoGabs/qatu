@@ -17,14 +17,14 @@
       rel="stylesheet"
     />
     <script type="module">
-      import { mostrarAlerta, mostrarConfirmacion } from '/components/utils/alertas.js';
+      import { mostrarAlerta, mostrarConfirmacion } from '/dist/utils/alertas.js';
       window.mostrarAlerta = mostrarAlerta;
       window.mostrarConfirmacion = mostrarConfirmacion;
     </script>
-    <script type="module" src="./js/login.js" defer></script>
+    <script type="module" src="/dist/login/ts/login.js" defer></script>
   </head>
   <body>
-    <a href="/public/index.html" class="btn-volver">
+    <a href="../../index.html" class="btn-volver">
       <img src="../../assets/flecha-volver.svg" alt="Volver" />º
     </a>
     <header>

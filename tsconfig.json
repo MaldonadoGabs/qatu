@@ -65,5 +65,8 @@
 
     // Stricter Typechecking Options - Deshabilitados temporalmente
     "strict": false
-  }
+  },
+  
+  "include": ["components/**/*.ts"],
+  "exclude": ["node_modules"]
 }

@@ -12,6 +12,8 @@ interface Usuario {
 
 let tipoUsuarioLogin: TipoUsuario = 'comprador';
 
+declare function mostrarAlerta(titulo: string, mensaje: string, tipo: 'exito' | 'error' | 'info'): void;
+
 // Inicializar eventos cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', () => {
     const btnComprador = document.getElementById('btn-comprador');
@@ -58,7 +60,11 @@ function manejarLogin(e: Event): void {
     const password = passwordInput.value;
     
     if (!email || !password) {
-        alert('Por favor, complete todos los campos.');
+        mostrarAlerta(
+            'Campos incompletos',
+            'Por favor, complete todos los campos.',
+            'error'
+        );
         return;
     }
     
@@ -95,17 +101,25 @@ function manejarLogin(e: Event): void {
         localStorage.setItem('usuarioActivo', JSON.stringify(usuarioEncontrado));
         console.log('Login exitoso:', usuarioEncontrado);
         
-        alert(`Bienvenido ${usuarioEncontrado.nombreEmpresa || usuarioEncontrado.nombre}!`);
+        mostrarAlerta(
+            '¡Bienvenido!',
+            `${usuarioEncontrado.nombreEmpresa || usuarioEncontrado.nombre}, redirigiendo...`,
+            'exito'
+        );
         
         // Redirigir según tipo de usuario
         if (usuarioEncontrado.tipo === 'vendedor') {
-            window.location.href = 'dashboard-vendedor.html';
+            window.location.href = '/components/dashboard/dashboard-vendedor.html';
         } else {
-            window.location.href = 'index.html';
+            window.location.href = '../../index.html';
         }
     } else {
         // Credenciales incorrectas
-        alert(`Credenciales incorrectas o no existe una cuenta de ${tipoUsuarioLogin} con estos datos.\n\nPor favor, verifique:\n- El correo electrónico\n- La contraseña\n- Que esté seleccionando el tipo de cuenta correcto`);
+        mostrarAlerta(
+            'Credenciales incorrectas',
+            `No existe una cuenta de ${tipoUsuarioLogin} con estos datos.\n\nPor favor, verifique:\n• El correo electrónico\n• La contraseña\n• Que esté seleccionando el tipo de cuenta correcto`,
+            'error'
+        );
     }
 }
 

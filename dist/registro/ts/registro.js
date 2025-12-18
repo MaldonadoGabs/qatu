@@ -7,18 +7,22 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { notifications } from '../../shared/notifications.js';
 class RegistroPage {
     constructor() {
         this.tipoUsuario = 'comprador';
-        this.form = document.getElementById('registro-form');
+        this.formComprador = document.getElementById('form-comprador');
+        this.formVendedor = document.getElementById('form-vendedor');
         this.btnComprador = document.getElementById('btn-comprador');
         this.btnVendedor = document.getElementById('btn-vendedor');
+        if (!this.formComprador || !this.formVendedor) {
+            console.error('No se encontraron los formularios');
+            return;
+        }
         this.init();
     }
     init() {
         this.configurarTipoUsuario();
-        this.configurarFormulario();
+        this.configurarFormularios();
     }
     configurarTipoUsuario() {
         this.btnComprador.addEventListener('click', () => {
@@ -33,46 +37,41 @@ class RegistroPage {
         if (tipo === 'comprador') {
             this.btnComprador.classList.add('active');
             this.btnVendedor.classList.remove('active');
+            this.formComprador.style.display = 'block';
+            this.formVendedor.style.display = 'none';
         }
         else {
             this.btnVendedor.classList.add('active');
             this.btnComprador.classList.remove('active');
-        }
-        this.actualizarFormulario();
-    }
-    actualizarFormulario() {
-        // Implementar lógica para mostrar/ocultar campos según tipo de usuario
-        // Por ahora solo cambiaremos el placeholder del nombre
-        const nombreInput = document.getElementById('nombre');
-        if (nombreInput) {
-            if (this.tipoUsuario === 'vendedor') {
-                nombreInput.placeholder = 'Nombre de la empresa';
-            }
-            else {
-                nombreInput.placeholder = 'Nombre completo';
-            }
+            this.formVendedor.style.display = 'block';
+            this.formComprador.style.display = 'none';
         }
     }
-    configurarFormulario() {
-        this.form.addEventListener('submit', (e) => {
+    configurarFormularios() {
+        this.formComprador.addEventListener('submit', (e) => {
             e.preventDefault();
-            this.procesarRegistro();
+            this.procesarRegistroComprador();
+        });
+        this.formVendedor.addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.procesarRegistroVendedor();
         });
     }
-    procesarRegistro() {
+    procesarRegistroComprador() {
         return __awaiter(this, void 0, void 0, function* () {
-            const formData = new FormData(this.form);
+            const formData = new FormData(this.formComprador);
+            const nombre = formData.get('nombre');
+            const apellido = formData.get('apellido');
             const email = formData.get('email');
             const password = formData.get('password');
             const confirmPassword = formData.get('confirm-password');
-            const nombre = formData.get('nombre');
             // Validaciones
             if (!this.validarFormulario(email, password, confirmPassword, nombre)) {
                 return;
             }
             // Verificar si el email ya existe
             if (this.emailYaRegistrado(email)) {
-                notifications.error('Este correo electrónico ya está registrado');
+                mostrarAlerta('Email ya registrado', 'Este correo electrónico ya está registrado. Por favor, inicia sesión.', 'error');
                 return;
             }
             // Generar código de verificación
@@ -82,65 +81,87 @@ class RegistroPage {
             // Crear usuario pendiente
             const usuarioPendiente = {
                 email: email,
-                password: password, // En producción, esto debería hashearse antes de guardar
-                tipo: this.tipoUsuario,
+                password: password,
+                tipo: 'comprador',
+                nombre: nombre,
+                apellido: apellido,
                 verificado: false,
                 codigoVerificacion: codigoVerificacion,
                 fechaExpiracionCodigo: fechaExpiracion.toISOString()
             };
-            if (this.tipoUsuario === 'comprador') {
-                usuarioPendiente.nombre = nombre;
-            }
-            else {
-                usuarioPendiente.nombreEmpresa = nombre;
-                usuarioPendiente.ruc = formData.get('ruc');
-            }
-            // Guardar en localStorage (temporal)
-            this.guardarUsuarioPendiente(usuarioPendiente);
-            // Enviar email de verificación
-            try {
-                // Por ahora seguimos mostrando en consola para pruebas
-                console.log('Código de verificación:', codigoVerificacion);
-                console.log('Email destinatario:', email);
-                // TODO: Implementar envío real de email cuando se configure el backend
-                // const emailService = new EmailService();
-                // await emailService.sendVerificationEmail({
-                //     email: email,
-                //     verificationCode: codigoVerificacion
-                // });
-                notifications.success('Se ha enviado un código de verificación a tu correo electrónico');
-            }
-            catch (error) {
-                console.error('Error al enviar email:', error);
-                notifications.error('No se pudo enviar el código de verificación. Intenta nuevamente.');
+            this.guardarYRedirigir(usuarioPendiente, codigoVerificacion, email);
+        });
+    }
+    procesarRegistroVendedor() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const formData = new FormData(this.formVendedor);
+            const nombreEmpresa = formData.get('nombre-empresa');
+            const email = formData.get('email-vendedor');
+            const password = formData.get('password-vendedor');
+            const confirmPassword = formData.get('confirm-password-vendedor');
+            // Validaciones
+            if (!this.validarFormulario(email, password, confirmPassword, nombreEmpresa)) {
                 return;
             }
-            // Redirigir a página de verificación después de 2 segundos
-            setTimeout(() => {
-                window.location.href = '/componentes/verificacion/verificacion.html';
-            }, 2000);
+            // Verificar si el email ya existe
+            if (this.emailYaRegistrado(email)) {
+                mostrarAlerta('Email ya registrado', 'Este correo electrónico ya está registrado. Por favor, inicia sesión.', 'error');
+                return;
+            }
+            // Generar código de verificación
+            const codigoVerificacion = this.generarCodigoVerificacion();
+            const fechaExpiracion = new Date();
+            fechaExpiracion.setMinutes(fechaExpiracion.getMinutes() + 15);
+            // Crear usuario pendiente
+            const usuarioPendiente = {
+                email: email,
+                password: password,
+                tipo: 'vendedor',
+                nombreEmpresa: nombreEmpresa,
+                verificado: false,
+                codigoVerificacion: codigoVerificacion,
+                fechaExpiracionCodigo: fechaExpiracion.toISOString()
+            };
+            this.guardarYRedirigir(usuarioPendiente, codigoVerificacion, email);
         });
+    }
+    guardarYRedirigir(usuario, codigo, email) {
+        // Guardar en localStorage
+        this.guardarUsuarioPendiente(usuario);
+        try {
+            console.log('Código de verificación:', codigo);
+            console.log('Email destinatario:', email);
+            mostrarAlerta('¡Registro exitoso!', 'Se ha enviado un código de verificación a tu correo electrónico. Revisa tu bandeja de entrada.', 'exito');
+            // Redirigir a página de verificación
+            setTimeout(() => {
+                window.location.href = '/components/verificacion/verificacion.html';
+            }, 2000);
+        }
+        catch (error) {
+            console.error('Error al enviar email:', error);
+            mostrarAlerta('Error al enviar código', 'No se pudo enviar el código de verificación. Por favor, intenta nuevamente.', 'error');
+        }
     }
     validarFormulario(email, password, confirmPassword, nombre) {
         // Validar email
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
-            notifications.error('Por favor, ingresa un correo electrónico válido');
+            mostrarAlerta('Email inválido', 'Por favor, ingresa un correo electrónico válido.', 'error');
             return false;
         }
         // Validar nombre
         if (!nombre || nombre.trim().length < 3) {
-            notifications.error('El nombre debe tener al menos 3 caracteres');
+            mostrarAlerta('Nombre muy corto', 'El nombre debe tener al menos 3 caracteres.', 'error');
             return false;
         }
         // Validar contraseña
         if (password.length < 8) {
-            notifications.error('La contraseña debe tener al menos 8 caracteres');
+            mostrarAlerta('Contraseña débil', 'La contraseña debe tener al menos 8 caracteres para mayor seguridad.', 'error');
             return false;
         }
         // Validar confirmación de contraseña
         if (password !== confirmPassword) {
-            notifications.error('Las contraseñas no coinciden');
+            mostrarAlerta('Contraseñas no coinciden', 'Las contraseñas ingresadas no son iguales. Por favor, verifícalas.', 'error');
             return false;
         }
         return true;
@@ -167,4 +188,5 @@ class RegistroPage {
 document.addEventListener('DOMContentLoaded', () => {
     new RegistroPage();
 });
+export {};
 //# sourceMappingURL=registro.js.map

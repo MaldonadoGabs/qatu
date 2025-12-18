@@ -15,14 +15,14 @@ function verificarSesion() {
     const usuarioActivo = localStorage.getItem('usuarioActivo');
     if (!usuarioActivo) {
         // No hay sesión, redirigir a login
-        window.location.href = 'login.html';
+        window.location.href = '/components/login/login.html';
         return;
     }
     const usuario = JSON.parse(usuarioActivo);
     // Verificar que sea un vendedor
     if (usuario.tipo !== 'vendedor') {
         // Es comprador, redirigir a index.html
-        window.location.href = 'index.html';
+        window.location.href = '../../index.html';
         return;
     }
     console.log('Sesión de vendedor verificada:', usuario);
@@ -264,7 +264,7 @@ function mostrarMenuCuenta(usuario) {
 function cerrarSesion() {
     if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
         localStorage.removeItem('usuarioActivo');
-        window.location.href = 'login.html';
+        window.location.href = '/components/login/login.html';
     }
 }
 // Hacer funciones disponibles globalmente
