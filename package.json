@@ -23,13 +23,12 @@
   "devDependencies": {
     "@types/crypto-js": "^4.2.2",
     "@types/node": "^24.10.1",
-    "@types/nodemailer": "^7.0.4",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   },
   "dependencies": {
+    "@emailjs/browser": "^4.4.1",
     "crypto-js": "^4.2.0",
-    "firebase": "^12.6.0",
-    "nodemailer": "^7.0.10"
+    "firebase": "^12.6.0"
   }
 }
